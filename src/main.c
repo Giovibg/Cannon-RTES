@@ -118,7 +118,7 @@ void trajectory_calc2(double angle)
         x = x0 + (vx * tx);
         y = YBASE + vy * t - .5 * G * t * t;
         if (y < YBASE) {
-            t = 0.0;
+            t = 0.1;
             //pthread_mutex_lock(&mxv);
             //v0[i] = .9 * v0[i];
             //vy = v0[i];
