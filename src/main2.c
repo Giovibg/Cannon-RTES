@@ -3,7 +3,6 @@
 #include <pthread.h>
 #include <allegro.h>
 #include "ptask.h"
-
 //-------------------------------------------------------------
 // GLOBAL CONSTANTS
 //-------------------------------------------------------------
@@ -20,9 +19,39 @@
 #define BKG 0
 // background color
 //-------------------------------------------------------------
+#define N 10
+// max number of tasks
+#define LEN 80
+// max message length
+#define PER 30
+// base period
+#define PINC 20
+// period increment
+#define Vzero 30
+// initial speed ball
+#define CANNON_X 60
+// X position cannon
+#define CANNON_Y 60
+// Y position cannon
+#define G 9.8
+// Gravity
+#define T 500
+// Trajectory period
+//-------------------------------------------------------------
+// GLOBAL VARIABLES
+//-------------------------------------------------------------
+int end = 0;
+// end flag
+char mes[N][LEN+1];
+// buf for MAXT mes of length LEN
 
+struct point{
+    double x;
+    double y;
+};
 
-/* Initialize display and keyboard interactions */
+struct point tmp[XWIN];
+
 void display_init()
 {
     allegro_init();
@@ -30,7 +59,6 @@ void display_init()
     clear_to_color(screen, BKG);
     
     install_keyboard();
-<<<<<<< HEAD
 
 }
 
@@ -87,7 +115,7 @@ void trajectory_calc2(double angle)
         x = x0 + (vx * tx);
         y = YBASE + vy * t - .5 * G * t * t;
         if (y < YBASE) {
-            t = 0.1;
+            t = 0.0;
             //pthread_mutex_lock(&mxv);
             //v0[i] = .9 * v0[i];
             //vy = v0[i];
@@ -111,7 +139,7 @@ void trajectory_calc2(double angle)
         tmp[j].x = x;
         printf("Y val: %d\n",y);
         tmp[j].y = y;
-        putpixel(screen, tmp[i].x, YWIN - XBASE - tmp[i].y, 15);
+        putpixel(screen, tmp[i].x, YWIN - XBASE - tmp[i].y, 14);
         oy = y;
         ox = x;
         t += dt;
@@ -162,7 +190,7 @@ void trajectory_calc(double angle)
         Vy = Vy_new;
         i++;
         //dt = dt + 0.1;
-       // sleep(1);
+        // sleep(1);
     }
     i  = 0;
     printf("Print  Trajectory\n");
@@ -173,32 +201,39 @@ void trajectory_calc(double angle)
         i++;
     }
 
-=======
->>>>>>> ff862dfd677478ab924fb80f15fd8c54ef916b74
 }
 
 
 int main(void)
 {
-    int k, c; //character from keyboard
+    int c, k;
 
     display_init();
 
     do
     {
         k = 0;
-        
+        int c = rand() % 90;
         if (keypressed())
         {
             c = readkey();
             k = c >> 8;
-            
-            init_gestor();
-            
-            
+            //double ang = rand() % 90;
+            if (k == KEY_SPACE)
+            {
+                printf("Eseguo traiettoria con angolo %d\n",c);
+                //task_create(k,hello,PER+k*PINC,PER+k*PINC,50,0);
+                //k++;
+                trajectory_calc(45);
+                for(int i = 0; i<XWIN;i++)
+                {
+                   putpixel(screen, tmp[i].x, YWIN - XBASE - tmp[i].y, 15);
+                }
+            }
         }
     } while (k != KEY_ESC);
 
+    end = 1;
     allegro_exit();
     return 0;
 }
