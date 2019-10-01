@@ -9,7 +9,7 @@ SHELL = /bin/sh
 CC = gcc
 
 # External headers.
-INCLUDE = -I./include
+INCLUDE = -I./include -I./lib
 
 # Options to the compiler.
 CFLAGS = -Wall -lrt -lm
@@ -33,9 +33,10 @@ SRC = ./src
 
 # Target filename.
 MAIN = main
+SOURCE = graphic
 
 # Files to compile.
-BASE_FILES = $(MAIN) 
+BASE_FILES = $(MAIN) $(SOURCE)
 SOURCE_FILES = $(addsuffix .c, $(addprefix $(SRC)/, $(BASE_FILES)))
 OUT_FILES = $(addsuffix .o, $(addprefix $(OUT_BUILD)/, $(BASE_FILES)))
 
@@ -82,5 +83,5 @@ endif
 
 # Clean, build and run as superuser (in order to use ptask).
 run: check-env all
-	$(info Executing PATRIOTS (as superuser)...)
+	$(info Executing (as superuser)...)
 	sudo $(OUT_BUILD)/$(MAIN)
