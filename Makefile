@@ -8,16 +8,16 @@ SHELL = /bin/sh
 # Compiler to be used.
 CC = gcc
 
-# External headers.
-INCLUDE = -I./include -I./lib
+# External headers for ptask.
+INCLUDE = -I./include
 
 # Options to the compiler.
 CFLAGS = -Wall -lrt -lm
 ALL_FLAGS = $(INCLUDE) $(CFLAGS)
 
 # Libraries.
-LIB_ALLEGRO = -lpthread `allegro-config --libs`
 LIB_PTASK = -L./lib -lptask
+LIB_ALLEGRO = -lpthread `allegro-config --libs`
 
 LIBS = $(LIB_PTASK) $(LIB_ALLEGRO)
 
@@ -44,12 +44,12 @@ OUT_FILES = $(addsuffix .o, $(addprefix $(OUT_BUILD)/, $(BASE_FILES)))
 # TARGETS
 # ----------------------------------------------------------------------
 
-# Default.
+# all call clean and build
 all: clean build
 
-#	# ---------------------
+# -------------------------
 # BUILD
-#	# ---------------------
+# -------------------------
 
 # Build.
 build: compile link 
@@ -62,9 +62,10 @@ compile: $(SOURCE_FILES)
 # Link all builded source files and create executable.
 link: $(OUT_FILES)
 	$(CC) -o $(OUT_BUILD)/$(MAIN) $(OUT_FILES) $(LIBS) $(ALL_FLAGS)
-#	# ---------------------
+
+# ----------------------------------
 # CLEAN
-#	# ---------------------
+# ----------------------------------
 
 # Command to clean: make clean
 clean:
@@ -83,5 +84,5 @@ endif
 
 # Clean, build and run as superuser (in order to use ptask).
 run: check-env all
-	$(info Executing (as superuser)...)
+	$(info Executing MAIN_NAME (as superuser)...)
 	sudo $(OUT_BUILD)/$(MAIN)
