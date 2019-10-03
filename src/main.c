@@ -4,39 +4,32 @@
 #include <allegro.h>
 #include "main.h"
 #include "ptask.h"
+#include "manager.h"
 #include "graphic.h"
 
 int main(void)
 {
-    int k, c;                       // characters from keyboard
+    int k;                          // Character from keyboard
+    int i = 0;
+    
+    /* Initialize graphic environment */
     gui_init();
 
-    int score = 0;
-    int shot = 0;
-
+    // Wait "KEY_SPACE" from player in the menu
     do
     {
         k = 0;
-        
         if (keypressed())
         {
-            c = readkey();
-            k = c >> 8;
-
-            if (k == KEY_SPACE)         
-            {
-                score+=1;
-                set_score(score);
-            }
-
-            if (k == KEY_ENTER)         
-            {
-                shot+=1;
-                set_rate(shot);
-            }
-            
+            k = readkey() >> 8;
+            // Funz che fa lampeggiare la scritta press space
         }
-    } while (k != KEY_ESC);
+    } while(k != KEY_ESC && k != KEY_SPACE);    
+
+    if(k != KEY_ESC)
+    {
+        manager_game();
+    }
 
     allegro_exit();
     return 0;

@@ -33,7 +33,7 @@ SRC = ./src
 
 # Target filename.
 MAIN = main
-SOURCE = graphic
+SOURCE = graphic manager
 
 # Files to compile.
 BASE_FILES = $(MAIN) $(SOURCE)
