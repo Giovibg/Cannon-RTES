@@ -1,7 +1,8 @@
 #include <semaphore.h>
 #include <allegro.h>
 #include "graphic.h"
-
+#include "ptask.h"
+#include "main.h"
 struct mem_t{
 
     int score;              // The score of the match; the number of time in which the target has been hit
@@ -12,7 +13,7 @@ struct mem_t{
 };
 
 // Shared memory structure
-    struct mem_t shared_m;
+    struct mem_t *shared_m;
 
 /* Initialization for shared memory */
 void mem_t_init(struct mem_t *mem)
@@ -31,15 +32,17 @@ void manager_init()
 {
     
     mem_t_init(&shared_m);
+    
 }
 
 /* Manager for the game */
-void manager_game()
+ptask manager_game()
 {  
     int k;                          // Character from keyboard
+    int task_index;
 
+    task_index = ptask_get_index(); 
     manager_init();
-
     play_screen_init();
 
     do
@@ -49,7 +52,16 @@ void manager_game()
         if(keypressed())
         {
             k = readkey() >> 8;
+            if(k == KEY_ENTER) //Ball shoted
+            {
+                sem_wait(&shared_m->mutex);
+                shared_m->score += 1;
+                sem_post(&shared_m->mutex);
+            }
         }
-        
-    } while (k != KEY_ESC);
+        ptask_wait_for_period();
+    } while (1);
+    
+   
+    
 }
