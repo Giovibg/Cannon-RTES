@@ -42,6 +42,7 @@ ptask manager_game()
     int task_index;
 
     task_index = ptask_get_index(); 
+    printf("Task index manager: %d\n",task_index);
     manager_init();
     play_screen_init();
 
@@ -52,6 +53,7 @@ ptask manager_game()
         if(keypressed())
         {
             k = readkey() >> 8;
+            //Comment Gio
             if(k == KEY_ENTER) //Ball shoted
             {
                 sem_wait(&shared_m->mutex);
