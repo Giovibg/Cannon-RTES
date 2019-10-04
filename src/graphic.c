@@ -7,6 +7,7 @@
 
 static int score = 0;
 static int shots = 0;
+static int end_graphic;
 
 /* Change rate and score value */
 void change_rate_score(int new_shots, int new_score)
@@ -27,39 +28,21 @@ void change_rate_score(int new_shots, int new_score)
     textout_ex(screen, font, s, PAD, PAD/2, 15, 0);
 }
 
+
+
 /* Task that update Game_Screen during play */
 ptask game_play()
 {
-    while(1)
+    end_graphic = 0;
+    while(end_graphic != 1)
     {  
-        sem_wait(&shared_m.mutex);
-        if (shared_m.nW > 0|| shared_m.nBw > 0)
-        {
-            // If there is an Active writer or a Pending writer, i'll block
-            shared_m.nBball++;
-        }
-        else
-        {
-            shared_m.nball++;
-            sem_post(&shared_m.s_ball);
-        }
-        sem_post(&shared_m.mutex);
-        sem_wait(&shared_m.s_ball);
-
-        // Update global static variable of shots and score
+        
+        control_reader();
+        // Update global static variable of shots and score. Protected!
         shots = shared_m.shots;
         score = shared_m.score;
-
-        sem_wait(&shared_m.mutex);
-        shared_m.nball--;
-        if(shared_m.nBw > 0 && shared_m.nball == 0)
-        {
-            // If there are some blocked Writers and no reader
-            shared_m.nBw--;
-            shared_m.nW++;
-            sem_post(&shared_m.s_W);
-        }
-        sem_post(&shared_m.mutex);
+        end_graphic = shared_m.end;
+        release_reader();
 
         change_rate_score(shots, score);
 
@@ -89,6 +72,8 @@ void play_screen_init()
 /* Draws menu interface */
 void menu_screen_init()
 {
+    clear_to_color(screen, BKG);
+
      // Drawing playground borders
     line(screen, PAD, YWIN - PAD, PAD, PAD, 15);
     line(screen, XWIN - PAD, YWIN - PAD, XWIN - PAD, PAD, 15);

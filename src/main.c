@@ -32,18 +32,24 @@ int main(void)
             k = readkey() >> 8;
 
             /* If press space, game start */
+            if (k == KEY_SPACE && bool_manager == 1)
+            {     
+                control_reader();
+                if(shared_m.end == 1)
+                {
+                    bool_manager = 0;
+                }
+                release_reader();
+            }
             if (k == KEY_SPACE && bool_manager == 0)
             {     
                 bool_manager = 1;
                 ret = ptask_create_param(manager_game, &params);
                 printf("Task id:%d\n",ret);
-            }
+            }    
         }
-
-        if(bool_manager == 1)
-        {
-            printf("Ciao");
-        }
+        
+        
     } while(k != KEY_ESC);    
 
     allegro_exit();

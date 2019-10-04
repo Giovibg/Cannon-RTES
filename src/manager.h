@@ -19,12 +19,13 @@ struct mem_t{
 
     int score;              // Score of the match; the number of time in which the target has been hit
     int shots;              // Number of bullets that has been fired
+    
     int nball;              // Number of Reader task
     int nBball;             // Number of Blocked ball task
     int nW;                 // Number of writing process
     int nBw;                // Number of Blocked Writing process#define PERIOD_M 30
-
-    sem_t s_ball, s_W;      // Semaphor for Reader task and Writers task
+    int end;                // End all task
+    sem_t s_Read, s_Write;      // Semaphor for Reader task and Writers task
     sem_t mutex;
     
 };
@@ -40,11 +41,23 @@ tpars init_param(void);
 
 /* Initialization for shared memory */
 void mem_t_init(struct mem_t *mem);
-// Shared memory structure
+
 /* Initialization of the game shared memory*/
 void manager_init();
 
 /* Manager for the game */
 ptask manager_game();
+
+/* First phase of writers protection */
+void control_writer();
+
+/* Release phase of writers protection */
+void release_writer();
+
+/* First phase of readers protection */
+void control_reader();
+
+/* Release phase of readers protection */
+void release_reader();
 
 #endif
