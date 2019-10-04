@@ -7,17 +7,6 @@
 #include "manager.h"
 #include "graphic.h"
 
-tpars init_param(void)
-{
-    tpars params = TASK_SPEC_DFL;
-    params.period = tspec_from(PERIOD_M, MILLI);
-    params.rdline = tspec_from(PERIOD_M, MILLI);
-    params.priority = PRIO_M;
-    params.measure_flag = 1;
-    params.act_flag = NOW;
-    return params;
-}
-
 int main(void)
 {
     
@@ -49,8 +38,11 @@ int main(void)
                 ret = ptask_create_param(manager_game, &params);
                 printf("Task id:%d\n",ret);
             }
-            
+        }
 
+        if(bool_manager == 1)
+        {
+            printf("Ciao");
         }
     } while(k != KEY_ESC);    
 

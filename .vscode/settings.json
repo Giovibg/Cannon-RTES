@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "main.h": "c",
-        "ptask.h": "c"
+        "ptask.h": "c",
+        "allegro.h": "c"
     }
 }

@@ -1,6 +1,8 @@
 #ifndef GRAPHIC_H
 #define GRAPHIC_H
 
+#include "ptask.h"
+
 //-------------------------------------------------------------
 // GLOBAL CONSTANTS
 //-------------------------------------------------------------
@@ -18,6 +20,9 @@
 
 /* Change rate and score value */
 void change_rate_score(int new_shots, int new_score);
+
+/* Task that update Game_Screen during play */
+ptask game_play();
 
 /* Draws game interface and screen */
 void play_screen_init();

@@ -1,6 +1,9 @@
 #include <allegro.h>
 #include <stdio.h>
+#include "ptask.h"
 #include "graphic.h"
+#include "manager.h"
+
 
 static int score = 0;
 static int shots = 0;
@@ -24,6 +27,46 @@ void change_rate_score(int new_shots, int new_score)
     textout_ex(screen, font, s, PAD, PAD/2, 15, 0);
 }
 
+/* Task that update Game_Screen during play */
+ptask game_play()
+{
+    while(1)
+    {  
+        sem_wait(&shared_m.mutex);
+        if (shared_m.nW > 0|| shared_m.nBw > 0)
+        {
+            // If there is an Active writer or a Pending writer, i'll block
+            shared_m.nBball++;
+        }
+        else
+        {
+            shared_m.nball++;
+            sem_post(&shared_m.s_ball);
+        }
+        sem_post(&shared_m.mutex);
+        sem_wait(&shared_m.s_ball);
+
+        // Update global static variable of shots and score
+        shots = shared_m.shots;
+        score = shared_m.score;
+
+        sem_wait(&shared_m.mutex);
+        shared_m.nball--;
+        if(shared_m.nBw > 0 && shared_m.nball == 0)
+        {
+            // If there are some blocked Writers and no reader
+            shared_m.nBw--;
+            shared_m.nW++;
+            sem_post(&shared_m.s_W);
+        }
+        sem_post(&shared_m.mutex);
+
+        change_rate_score(shots, score);
+
+        ptask_wait_for_period();
+    }
+}
+
 /* Draws game interface and screen */
 void play_screen_init()
 {
@@ -35,20 +78,12 @@ void play_screen_init()
     line(screen, PAD, YWIN - PAD, XWIN - PAD, YWIN - PAD, 15);
     line(screen, XWIN - PAD, PAD, PAD, PAD, 15);
 
-    // tmp var to for writing message
-    char s[MSG_L];
-
     /* Score statistic info */
-    // Score
-    sprintf(s, "Score: %d", score);
-    textout_ex(screen, font, s, PAD, PAD/2, 15, 0);
+    // Score and Rate hit/shot
+    change_rate_score(0, 0);
     
     // Game title
     textout_ex(screen, font, "CANNON BALL!", XWIN/2 - 45, PAD/2, 15, 0);
-
-    // Rate hit/shot
-    sprintf(s, "Rate: %d/%d", score, shots);
-    textout_ex(screen, font, s, XWIN - PAD - 70, PAD/2, 15, 0);
 }
 
 /* Draws menu interface */
