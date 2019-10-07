@@ -5,5 +5,6 @@
 //Period manager task
 #define PRIO_M 10
 //priority manager task
+#define MAX_SHOTS 90
 
 #endif

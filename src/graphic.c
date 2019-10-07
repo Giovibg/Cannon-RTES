@@ -7,7 +7,6 @@
 
 static int score = 0;
 static int shots = 0;
-static int end_graphic;
 
 /* Change rate and score value */
 void change_rate_score(int new_shots, int new_score)
@@ -28,20 +27,15 @@ void change_rate_score(int new_shots, int new_score)
     textout_ex(screen, font, s, PAD, PAD/2, 15, 0);
 }
 
-
-
 /* Task that update Game_Screen during play */
 ptask game_play()
 {
-    end_graphic = 0;
-    while(end_graphic != 1)
+    while(1)
     {  
-        
-        control_reader();
         // Update global static variable of shots and score. Protected!
+        control_reader();
         shots = shared_m.shots;
         score = shared_m.score;
-        end_graphic = shared_m.end;
         release_reader();
 
         change_rate_score(shots, score);

@@ -6,10 +6,14 @@
 //-------------------------------------------------------------
 // GLOBAL CONSTANTS
 //-------------------------------------------------------------
+#define PERIOD_G 20
+// Period Graphic task
+#define PRIO_G 8
+// Priority Graphic task
 #define PERIOD_B 20
-// Period manager task
-#define PRIO_B 8
-// Priority manager task
+// Period Shot task
+#define PRIO_B 9
+// Priority Shot task
 
 //-------------------------------------------------------------
 // STRUCTURE DEFINITIONS
@@ -24,7 +28,7 @@ struct mem_t{
     int nBball;             // Number of Blocked ball task
     int nW;                 // Number of writing process
     int nBw;                // Number of Blocked Writing process#define PERIOD_M 30
-    int end;                // End all task
+
     sem_t s_Read, s_Write;      // Semaphor for Reader task and Writers task
     sem_t mutex;
     
@@ -37,7 +41,7 @@ struct mem_t shared_m;
 //-------------------------------------------------------------
 
 /* Initialize Ball task params */
-tpars init_param(void);
+tpars init_param(int PRIO, int PERIOD);
 
 /* Initialization for shared memory */
 void mem_t_init(struct mem_t *mem);
@@ -46,7 +50,7 @@ void mem_t_init(struct mem_t *mem);
 void manager_init();
 
 /* Manager for the game */
-ptask manager_game();
+void manager_game();
 
 /* First phase of writers protection */
 void control_writer();
@@ -59,5 +63,8 @@ void control_reader();
 
 /* Release phase of readers protection */
 void release_reader();
+
+/* Create a new Shot task*/
+void shot_create();
 
 #endif

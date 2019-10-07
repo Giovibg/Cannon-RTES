@@ -1,8 +1,12 @@
 #include <semaphore.h>
 #include <allegro.h>
-#include "graphic.h"
+
 #include "ptask.h"
+#include "graphic.h"
 #include "manager.h"
+#include "shot.h"
+
+static tpars shot_params;
 
 /* Initialization for shared memory */
 void mem_t_init(struct mem_t *mem)
@@ -12,7 +16,7 @@ void mem_t_init(struct mem_t *mem)
     mem->nball = 0;
     mem->nBball = 0;
     mem->nW = 0;
-    mem->end = 0;
+    
     sem_init(&mem->s_Read, 0, 0);
     sem_init(&mem->s_Write, 0, 0);
     sem_init(&mem->mutex, 0, 1);
@@ -23,9 +27,7 @@ void mem_t_init(struct mem_t *mem)
 void manager_init()
 {
     mem_t_init(&shared_m);
-
 }
-
 
 /* First phase of writer manager protection */
 void control_writer()
@@ -106,22 +108,30 @@ void release_reader()
     sem_post(&shared_m.mutex);
 }
 
-/* Initialize Ball task params */
-tpars init_param(void)
+/* Initialize task params */
+tpars init_param(int PRIO, int PERIOD)
 {
     tpars params = TASK_SPEC_DFL;
-    params.period = tspec_from(PERIOD_B, MILLI);
-    params.rdline = tspec_from(PERIOD_B, MILLI);
-    params.priority = PRIO_B;
+    params.period = tspec_from(PERIOD, MILLI);
+    params.rdline = tspec_from(PERIOD, MILLI);
+    params.priority = PRIO;
     params.measure_flag = 1;
     params.act_flag = NOW;
+    params.arg = NULL;
     return params;
 }
 
+/* Create a new Shot task*/
+void shot_create()
+{
+    int ret;
+    ret = ptask_create_param(shot, &shot_params);
+    printf("Ho creato pallina con ret: %d\n", ret);
+}
+
 /* Manager for the game */
-ptask manager_game()
+void manager_game()
 {  
-    int k;                          // Character from keyboard
     int task_index;                 // var per debug
     tpars params;                   // Params for Ball task
 
@@ -135,33 +145,10 @@ ptask manager_game()
     /* Draws game interface and screen */
     play_screen_init();
 
-    params = init_param();
+    /* Create graphic task */
+    params = init_param(PRIO_G, PERIOD_G);
     ptask_create_param(game_play, &params);
 
-    do
-    {
-        k = 0;
-        if(keypressed())
-        {
-            k = readkey() >> 8;
-            if(k == KEY_ENTER) // Ball shoted
-            {
-                /* Create a new Ball task
-                params = init_param();
-                ret = ptask_create_param(manager_game, &params);
-                */
-                
-                control_writer(); 
-                shared_m.shots += 1; //Update shot launch. Protected!
-                release_writer();
-            }
-            ptask_wait_for_period();
-        }
-    } while (k != KEY_ESC);
-
-    control_writer();
-    shared_m.end = 1;   // Exit all tasks 
-    release_writer(); 
-
-    menu_screen_init();
+    /* Create Shots params*/
+    shot_params = init_param(PRIO_B, PERIOD_B);
 }
