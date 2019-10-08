@@ -6,8 +6,7 @@
 //-------------------------------------------------------------
 // GLOBAL CONSTANTS
 //-------------------------------------------------------------
-#define PAD 60
-// padding for game's statistics
+
 #define BKG 0
 // background color
 #define WHITE 15
@@ -33,5 +32,8 @@ void display_init();
 
 /* Initialize graphic environment */
 void gui_init();
+
+/*Import Bitmaps */
+void import_bitmap();
 
 #endif

@@ -7,9 +7,17 @@
 
 static int score = 0;
 static int shots = 0;
+static BITMAP *target;          //Target bitmap
 struct pos_t pos[MAX_SHOTS];
 struct pos_t old[MAX_SHOTS];
 
+
+/* Import Bitmaps */
+void import_bitmap()
+{
+    target = load_bitmap("ship.bmp", NULL);
+    blit(target,screen,0,0,XWIN/2,YWIN/2,40,40);
+}
 /* Change rate and score value */
 void change_rate_score(int new_shots, int new_score)
 {
@@ -31,7 +39,7 @@ void change_rate_score(int new_shots, int new_score)
 
 void draw_ball(struct pos_t pos, int color)
 {
-    circlefill(screen, pos.x, pos.y, 5, color);
+    circlefill(screen, pos.x, pos.y, RADIUS, color);
 }
 
 /* Task that update Game_Screen during play */
@@ -41,14 +49,14 @@ ptask game_play()
 
     for(i = 0; i < MAX_SHOTS; i++)
     {
-        pos[i].x = -1;
-        pos[i].y = -1;
+        pos[i].x = NO_POS;
+        pos[i].y = NO_POS;
     }
 
     while(1)
     {  
         i = 0;
-
+        import_bitmap();
         // Update global static variable of shots and score. Protected!
         control_reader();
         shots = shared_m.shots;
@@ -66,10 +74,10 @@ ptask game_play()
             pos[i].x = shared_m.pos[i].x;
             pos[i].y = shared_m.pos[i].y;
             release_reader();
-
-            if(pos[i].x != -1 && pos[i].y != -1)
+            draw_ball(old[i], BKG);
+            if(pos[i].x != NO_POS && pos[i].y != NO_POS)
             {
-                draw_ball(old[i], BKG);
+                
                 draw_ball(pos[i], WHITE);
             }
         }

@@ -10,6 +10,14 @@
 // window x resolution
 #define YWIN 680
 // window y resolution
+#define PAD 60
+// padding for game's statistics
+#define RADIUS 5
+// Shot ball radius
+#define OFFSET 10
+// Offset bitmap target
+#define NO_POS -1
+// Alias no position ball
 #define PERIOD_G 20
 // Period Graphic task
 #define PRIO_G 8
@@ -35,7 +43,9 @@ struct mem_t{
 
     int score;                      // Score of the match; the number of time in which the target has been hit
     int shots;                      // Number of bullets that has been fired
+
     struct pos_t pos[MAX_SHOTS];    // Positions of all the Shots
+    struct pos_t pos_target;        // Position of target
     
     int nball;                      // Number of Reader task
     int nBball;                     // Number of Blocked ball task

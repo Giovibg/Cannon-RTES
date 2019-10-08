@@ -20,6 +20,8 @@ void mem_t_init(struct mem_t *mem)
 
     mem->score = 0;
     mem->shots = 0;
+    mem->pos_target.x = XWIN - PAD;     //Right down angle screen
+    mem->pos_target.y = YWIN - PAD;
 
     for(i = 0; i < MAX_SHOTS; i++)
     {
@@ -162,3 +164,4 @@ void manager_game()
     params = init_param(PRIO_G, PERIOD_G);
     ptask_create_param(game_play, &params);
 }
+
