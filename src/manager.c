@@ -6,27 +6,30 @@
 #include "manager.h"
 #include "shot.h"
 
+// Params for Shot tasks
 static tpars shot_params;
 
 /* Initialization for shared memory */
 void mem_t_init(struct mem_t *mem)
 {
-    mem->score = 0;
-    mem->shots = 0;
+    int i;
+
     mem->nball = 0;
     mem->nBball = 0;
     mem->nW = 0;
+
+    mem->score = 0;
+    mem->shots = 0;
+
+    for(i = 0; i < MAX_SHOTS; i++)
+    {
+        mem->pos[i].x = -1;
+        mem->pos[i].y = -1;
+    }
     
     sem_init(&mem->s_Read, 0, 0);
     sem_init(&mem->s_Write, 0, 0);
     sem_init(&mem->mutex, 0, 1);
-    
-}
-
-/* Initialization of the game shared memory */
-void manager_init()
-{
-    mem_t_init(&shared_m);
 }
 
 /* First phase of writer manager protection */
@@ -121,11 +124,21 @@ tpars init_param(int PRIO, int PERIOD)
     return params;
 }
 
+/* Initialization of the game shared memory */
+void manager_init()
+{
+    mem_t_init(&shared_m);
+}
+
 /* Create a new Shot task*/
 void shot_create()
 {
     int ret;
+
+    /* Create Shots params*/
+    shot_params = init_param(PRIO_B, PERIOD_B);
     ret = ptask_create_param(shot, &shot_params);
+
     printf("Ho creato pallina con ret: %d\n", ret);
 }
 
@@ -133,7 +146,7 @@ void shot_create()
 void manager_game()
 {  
     int task_index;                 // var per debug
-    tpars params;                   // Params for Ball task
+    tpars params;                   // Params for Graphic task
 
     // linee per debug
     task_index = ptask_get_index(); 
@@ -148,7 +161,4 @@ void manager_game()
     /* Create graphic task */
     params = init_param(PRIO_G, PERIOD_G);
     ptask_create_param(game_play, &params);
-
-    /* Create Shots params*/
-    shot_params = init_param(PRIO_B, PERIOD_B);
 }

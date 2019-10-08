@@ -1,12 +1,14 @@
 #include <allegro.h>
 #include <stdio.h>
+
 #include "ptask.h"
 #include "graphic.h"
 #include "manager.h"
 
-
 static int score = 0;
 static int shots = 0;
+struct pos_t pos[MAX_SHOTS];
+struct pos_t old[MAX_SHOTS];
 
 /* Change rate and score value */
 void change_rate_score(int new_shots, int new_score)
@@ -27,11 +29,26 @@ void change_rate_score(int new_shots, int new_score)
     textout_ex(screen, font, s, PAD, PAD/2, 15, 0);
 }
 
+void draw_ball(struct pos_t pos, int color)
+{
+    circlefill(screen, pos.x, pos.y, 5, color);
+}
+
 /* Task that update Game_Screen during play */
 ptask game_play()
 {
+    int i;
+
+    for(i = 0; i < MAX_SHOTS; i++)
+    {
+        pos[i].x = -1;
+        pos[i].y = -1;
+    }
+
     while(1)
     {  
+        i = 0;
+
         // Update global static variable of shots and score. Protected!
         control_reader();
         shots = shared_m.shots;
@@ -40,6 +57,22 @@ ptask game_play()
 
         change_rate_score(shots, score);
 
+        for(i = 0; i < MAX_SHOTS; i++)
+        {
+            old[i].x = pos[i].x;
+            old[i].y = pos[i].y;
+
+            control_reader();
+            pos[i].x = shared_m.pos[i].x;
+            pos[i].y = shared_m.pos[i].y;
+            release_reader();
+
+            if(pos[i].x != -1 && pos[i].y != -1)
+            {
+                draw_ball(old[i], BKG);
+                draw_ball(pos[i], WHITE);
+            }
+        }
         ptask_wait_for_period();
     }
 }

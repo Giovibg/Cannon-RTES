@@ -6,15 +6,13 @@
 //-------------------------------------------------------------
 // GLOBAL CONSTANTS
 //-------------------------------------------------------------
-#define XWIN 1060
-// window x resolution
-#define YWIN 680
-// window y resolution
 #define PAD 60
 // padding for game's statistics
 #define BKG 0
 // background color
-#define MSG_L 50
+#define WHITE 15
+// background color
+#define MSG_L 50  
 // string lenght
 //-------------------------------------------------------------
 

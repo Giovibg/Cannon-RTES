@@ -14,7 +14,7 @@ int main(void)
     int k;                  // Character from keyboard
 
     int bool_manager = 0;   // Check manager task activated
-    int n_shots = 0;
+    int n_shots = 0;        
 
     /* Initialize graphic environment */
     gui_init();
