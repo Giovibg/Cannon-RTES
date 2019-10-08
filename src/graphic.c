@@ -8,6 +8,7 @@
 static int score = 0;
 static int shots = 0;
 static BITMAP *target;          //Target bitmap
+static BITMAP *cannon;
 struct pos_t pos[MAX_SHOTS];
 struct pos_t old[MAX_SHOTS];
 
@@ -15,8 +16,10 @@ struct pos_t old[MAX_SHOTS];
 /* Import Bitmaps */
 void import_bitmap()
 {
-    target = load_bitmap("ship.bmp", NULL);
-    blit(target,screen,0,0,XWIN/2,YWIN/2,40,40);
+    target = load_bitmap("img/ship_r.bmp", NULL);
+    blit(target,screen,0,0,XWIN - PAD - 3*OFFSET,YWIN - PAD - 3*OFFSET,80,80);
+    cannon = load_bitmap("img/can_r.bmp", NULL);
+    blit(cannon,screen,0,0,PAD + 3*OFFSET,YWIN - PAD - 3*OFFSET,80,80);
 }
 /* Change rate and score value */
 void change_rate_score(int new_shots, int new_score)
