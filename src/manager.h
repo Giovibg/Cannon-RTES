@@ -28,6 +28,8 @@
 // Priority Shot task
 #define MAX_SHOTS 90
 // Number of max possible shots
+#define MAX_PWR 10
+// Max power of the shot
 
 //-------------------------------------------------------------
 // STRUCTURE DEFINITIONS
@@ -43,6 +45,9 @@ struct mem_t{
 
     int score;                      // Score of the match; the number of time in which the target has been hit
     int shots;                      // Number of bullets that has been fired
+
+    int shot_pwr;                   // Power of the shot
+    int end_charge;
 
     struct pos_t pos[MAX_SHOTS];    // Positions of all the Shots
     struct pos_t pos_target;        // Position of target
@@ -88,6 +93,9 @@ void manager_init();
 
 /* Create a new Shot task*/
 void shot_create();
+
+/* Charge cannon */
+ptask charge_cannon();
 
 /* Manager for the game */
 void manager_game();

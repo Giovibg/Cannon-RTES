@@ -7,19 +7,18 @@
 
 static int score = 0;
 static int shots = 0;
-static BITMAP *target;          //Target bitmap
-static BITMAP *cannon;
+static BITMAP *target;         
+static BITMAP *cannon;          
 struct pos_t pos[MAX_SHOTS];
 struct pos_t old[MAX_SHOTS];
-
 
 /* Import Bitmaps */
 void import_bitmap()
 {
     target = load_bitmap("img/ship_r.bmp", NULL);
-    blit(target,screen,0,0,XWIN - PAD - 3*OFFSET,YWIN - PAD - 3*OFFSET,80,80);
+    blit(target,screen,0,0,XWIN - PAD - 9*OFFSET,YWIN - PAD - 10*OFFSET,100,100);
     cannon = load_bitmap("img/can_r.bmp", NULL);
-    blit(cannon,screen,0,0,PAD + 3*OFFSET,YWIN - PAD - 3*OFFSET,80,80);
+    blit(cannon,screen,0,0,PAD + 5*OFFSET,YWIN - PAD - 5*OFFSET,80,80);
 }
 /* Change rate and score value */
 void change_rate_score(int new_shots, int new_score)
@@ -48,7 +47,9 @@ void draw_ball(struct pos_t pos, int color)
 /* Task that update Game_Screen during play */
 ptask game_play()
 {
-    int i;
+    int i, j;
+    int end_charge = -1;
+    int shot_pwr = 0;
 
     for(i = 0; i < MAX_SHOTS; i++)
     {
@@ -61,12 +62,27 @@ ptask game_play()
         i = 0;
         import_bitmap();
         // Update global static variable of shots and score. Protected!
+        
+        change_rate_score(shots, score);
+
         control_reader();
         shots = shared_m.shots;
         score = shared_m.score;
+        end_charge = shared_m.end_charge;
+        shot_pwr = shared_m.shot_pwr;
         release_reader();
 
-        change_rate_score(shots, score);
+        if (end_charge != -1)
+        {
+            for(j = 1; j <= shot_pwr; j++)
+            {
+                line(screen,  PAD + 1*OFFSET, YWIN - PAD - j*OFFSET, PAD + 3*OFFSET, YWIN - PAD - j*OFFSET, 15);
+            }
+            for(;j <= 10; j++)
+            {
+                line(screen,  PAD + 1*OFFSET, YWIN - PAD - j*OFFSET, PAD + 3*OFFSET, YWIN - PAD - j*OFFSET, 0);
+            }
+        }
 
         for(i = 0; i < MAX_SHOTS; i++)
         {
@@ -80,7 +96,6 @@ ptask game_play()
             draw_ball(old[i], BKG);
             if(pos[i].x != NO_POS && pos[i].y != NO_POS)
             {
-                
                 draw_ball(pos[i], WHITE);
             }
         }
@@ -105,6 +120,10 @@ void play_screen_init()
     
     // Game title
     textout_ex(screen, font, "CANNON BALL!", XWIN/2 - 45, PAD/2, 15, 0);
+
+    line(screen,  PAD + 3*OFFSET, YWIN - PAD - OFFSET, PAD + 3*OFFSET, YWIN - PAD - 13*OFFSET, 15);
+    line(screen,  PAD + 1*OFFSET, YWIN - PAD - OFFSET, PAD + 1*OFFSET, YWIN - PAD - 13*OFFSET, 15);
+    line(screen,  PAD + 1*OFFSET, YWIN - PAD - 13*OFFSET, PAD + 3*OFFSET, YWIN - PAD - 13*OFFSET, 15);
 }
 
 /* Draws menu interface */

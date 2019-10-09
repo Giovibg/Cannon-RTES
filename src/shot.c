@@ -65,9 +65,5 @@ ptask shot()
         
         ptask_wait_for_period();
     }
-
-    
-    
-
 }
 

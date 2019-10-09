@@ -6,7 +6,6 @@
 //-------------------------------------------------------------
 // GLOBAL CONSTANTS
 //-------------------------------------------------------------
-
 #define BKG 0
 // background color
 #define WHITE 15
@@ -33,7 +32,7 @@ void display_init();
 /* Initialize graphic environment */
 void gui_init();
 
-/*Import Bitmaps */
+/* Import Bitmaps */
 void import_bitmap();
 
 #endif

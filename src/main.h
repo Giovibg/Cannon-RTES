@@ -5,5 +5,6 @@
 // Period manager task
 #define PRIO_M 10
 // Priority manager task
-
+#define MAX_SHOT 10
+// Max value for power shot
 #endif

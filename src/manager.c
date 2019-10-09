@@ -14,14 +14,19 @@ void mem_t_init(struct mem_t *mem)
 {
     int i;
 
+    mem->score = 0;
+    mem->shots = 0;
+
+    mem->shot_pwr = 1;
+    mem->end_charge = -1;
+
+    mem->pos_target.x = XWIN - PAD - 9*OFFSET;
+    mem->pos_target.y = YWIN - PAD - 10*OFFSET;
+
     mem->nball = 0;
     mem->nBball = 0;
     mem->nW = 0;
-
-    mem->score = 0;
-    mem->shots = 0;
-    mem->pos_target.x = XWIN - PAD;     //Right down angle screen
-    mem->pos_target.y = YWIN - PAD;
+    mem->nBw = 0;
 
     for(i = 0; i < MAX_SHOTS; i++)
     {
@@ -142,6 +147,53 @@ void shot_create()
     ret = ptask_create_param(shot, &shot_params);
 
     printf("Ho creato pallina con ret: %d\n", ret);
+}
+
+/* Charge cannon */
+ptask charge_cannon()
+{
+    int up = 1;                 // Var that says if the pwr should grow or decrease
+    int shot_pwr = 0;
+    int end_charge = 0;
+
+    int pwr;
+
+    do
+    {
+
+        if(up)
+        {
+            shot_pwr += 1;
+            control_writer();
+            shared_m.shot_pwr = shot_pwr;
+            release_writer();
+            if (shot_pwr == MAX_PWR)
+            {
+                up = 0;
+            }
+        }
+        else
+        {
+            shot_pwr -= 1;
+            control_writer();
+            shared_m.shot_pwr = shot_pwr;
+            release_writer();
+            if (shot_pwr == 0)
+            {
+                up = 1;
+            }
+        }  
+
+        control_reader();
+        end_charge = shared_m.end_charge;
+        pwr = shared_m.shot_pwr;
+        release_reader();
+
+        printf("show_pwe: %d\n", pwr);
+        sleep(1);
+    } while(end_charge != -1);
+
+    return;
 }
 
 /* Manager for the game */
