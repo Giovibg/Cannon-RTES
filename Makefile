@@ -4,7 +4,7 @@ SHELL = /bin/sh
 # ----------------------------------------------------------------------
 # COMPILE OPTIONS
 # ----------------------------------------------------------------------
-
+MAIN_NAME = CannonBall
 # Compiler to be used.
 CC = gcc
 
@@ -84,5 +84,5 @@ endif
 
 # Clean, build and run as superuser (in order to use ptask).
 run: check-env all
-	$(info Executing MAIN_NAME (as superuser)...)
+	$(info Executing $(MAIN_NAME))
 	sudo $(OUT_BUILD)/$(MAIN)

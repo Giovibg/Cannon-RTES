@@ -30,10 +30,17 @@ void mem_t_init(struct mem_t *mem)
 
     for(i = 0; i < MAX_SHOTS; i++)
     {
-        mem->pos[i].x = -1;
-        mem->pos[i].y = -1;
+        mem->pos[i].x = NO_POS;
+        mem->pos[i].y = NO_POS;
     }
     
+    for(int i=0; i < XWIN * YWIN; i++)
+    {
+        mem -> trajectory[i].x = NO_POS;
+        mem -> trajectory[i].y = NO_POS;
+
+    }
+
     sem_init(&mem->s_Read, 0, 0);
     sem_init(&mem->s_Write, 0, 0);
     sem_init(&mem->mutex, 0, 1);
@@ -194,6 +201,35 @@ ptask charge_cannon()
     } while(end_charge != -1);
 
     return;
+}
+
+/* Task trajectory calculation */
+void trajectory_cannon(float speedx, float speedy)
+{
+    float old_x, old_y;
+    float x, y;
+    int i = 0;
+    old_x = x =  PAD + 80 + 5*OFFSET;
+    old_y = y = PAD + 5*OFFSET;
+    float dt = PERIOD_G * 0.0007; // TScale based on graphic period
+    
+    while((x <= XWIN) && (YWIN - y < YWIN - PAD))
+    {
+        old_x = x;
+        old_y = y;
+        x = old_x + (speedx * dt);
+        //x += 1;
+        y = old_y + (speedy * dt) - (0.5 * G * dt * dt);
+        speedy =  speedy - (G * dt);
+        printf("X: %f\n Y: %f\n",x,y);
+        //putpixel(screen, x, YWIN - y, 12);
+        control_writer();
+        shared_m.trajectory[i].x = x;
+        shared_m.trajectory[i].y = YWIN - y;
+        release_writer();
+        i += 1;
+        printf("valore i:%d\n",i);
+    }
 }
 
 /* Manager for the game */

@@ -44,6 +44,22 @@ void draw_ball(struct pos_t pos, int color)
     circlefill(screen, pos.x, pos.y, RADIUS, color);
 }
 
+void update_trajectory(int color)
+{
+    struct pos_t trail;
+    int j = 0;
+    while(shared_m.trajectory[j].x != -1)
+    {
+        control_reader();
+        trail.x = shared_m.trajectory[j].x;
+        trail.y = shared_m.trajectory[j].y;
+        release_reader();
+        putpixel(screen, trail.x, trail.y, color);
+        j += 1;
+    }
+}
+
+
 /* Task that update Game_Screen during play */
 ptask game_play()
 {
@@ -61,12 +77,12 @@ ptask game_play()
     {  
         i = 0;
         import_bitmap();
-        // Update global static variable of shots and score. Protected!
+        
         
         change_rate_score(shots, score);
 
-        control_reader();
-        shots = shared_m.shots;
+        control_reader();// Update global static variable of shots and score. Protected!
+        shots = shared_m.shots; 
         score = shared_m.score;
         end_charge = shared_m.end_charge;
         shot_pwr = shared_m.shot_pwr;
@@ -83,7 +99,8 @@ ptask game_play()
                 line(screen,  PAD + 1*OFFSET, YWIN - PAD - j*OFFSET, PAD + 3*OFFSET, YWIN - PAD - j*OFFSET, 0);
             }
         }
-
+       
+        update_trajectory(RED);
         for(i = 0; i < MAX_SHOTS; i++)
         {
             old[i].x = pos[i].x;

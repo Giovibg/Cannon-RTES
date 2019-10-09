@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <allegro.h>
+#include <math.h>
 
 #include "main.h"
 #include "ptask.h"
@@ -16,6 +17,9 @@ int main(void)
     int n_shots = 0;        
     
     int shot_pwr = 0;           // Power of the shot
+    float cannon_degree = 10;     //Start degree of cannon
+    float speed_x = 0;            // Horizontal speed
+    float speed_y = 0;            // Vertical speed
 
     tpars params;
 
@@ -57,6 +61,7 @@ int main(void)
 
             if (k == KEY_ENTER && bool_manager == 2)
             {
+               
                 control_writer();
                 shared_m.end_charge = -1;
                 release_writer();
@@ -64,9 +69,46 @@ int main(void)
                 control_reader();
                 shot_pwr = shared_m.shot_pwr;
                 release_reader();
-
+                shot_pwr *= 10;
+                bool_manager = 3;
                 printf("POTENZA!!: %d\n", shot_pwr);
             }
+
+            if ((k == KEY_UP || k == KEY_DOWN) && bool_manager == 3)
+            {
+                
+                do{
+                    
+                    if (k == KEY_UP)
+                    {
+                        cannon_degree += 1;
+                        printf("Gradi cannone: %f\n",cannon_degree);
+                    }
+                    else
+                    {
+                        cannon_degree -= 1 ;
+                        printf("Gradi cannone: %f\n",cannon_degree);
+                    }
+                    float rad =  (cannon_degree * M_PI) / 180;
+                    printf("Radiant:%f\n",rad);
+                    speed_x = shot_pwr * cos(rad);
+                    printf("Horizontal v: %f\n",speed_x);
+                    speed_y = shot_pwr * sin(rad);
+                    printf("Vertical v: %f\n",speed_y);
+                    k = readkey() >> 8;
+                    trajectory_cannon(speed_x,speed_y);
+                }while(k != KEY_ENTER);
+
+                
+                if(n_shots < MAX_SHOTS)
+                {
+                    printf("Make shot\n");
+                    shot_create();
+                    n_shots += 1;
+                    bool_manager = 1;
+                }
+            }
+
         }
         
     }while(k != KEY_ESC);    

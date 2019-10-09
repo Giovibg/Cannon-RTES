@@ -35,25 +35,39 @@ void check_target(struct pos_t *pos)
 ptask shot()
 {
     struct pos_t local_p;      // Ball local position 
-    local_p.x = XWIN/2;
-    local_p.y = YWIN/2;
+    struct postrail_t local_t[XWIN * YWIN];  //Trajectory local
+    int j = 0;
+    
+    while(shared_m.trajectory[j].x != NO_POS)
+    {
+        control_reader();
+        local_t[j].x = shared_m.trajectory[j].x;
+        local_t[j].y = shared_m.trajectory[j].y;
+        release_reader();
+        printf("Pallina traiettoria X:%f Y:%f\n",local_t[j].x, local_t[j].y);
+        j += 1;
+        
+    }
+    
+   // local_p.x = XWIN/2;
+   // local_p.y = YWIN/2;
 
     int index;                  // Index of the current Shot task
-
+    int i = 0;
     index = ptask_get_index();
 
     printf("Sono la pallina %d!\n", index);
 
     control_writer();
     shared_m.shots += 1;
-    shared_m.pos[index].x = local_p.x;
-    shared_m.pos[index].y = local_p.y;
+    shared_m.pos[index].x = local_t[0].x;
+    shared_m.pos[index].y = local_t[0].y;
     release_writer();
 
     while(local_p.x != NO_POS || local_p.y != NO_POS)   //Draw ball position 
-    {                                           //till in border
-        local_p.x += 1;
-        local_p.y += 1;
+    {                                                   //till in border
+        local_p.x = local_t[i].x;
+        local_p.y = local_t[i].y;
         
         check_border(&local_p);
         check_target(&local_p);
@@ -61,7 +75,7 @@ ptask shot()
         shared_m.pos[index].x = local_p.x; 
         shared_m.pos[index].y = local_p.y;
         release_writer();
-
+        i += 1;
         
         ptask_wait_for_period();
     }

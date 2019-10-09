@@ -30,6 +30,13 @@
 // Number of max possible shots
 #define MAX_PWR 10
 // Max power of the shot
+#define M_PI 3.1415926535
+// PI
+#define G 9.8
+// Gravity acceleration
+#define CANNON_X XWIN - PAD - 9*OFFSET
+// Cannon X position
+#define CANNON_Y YWIN - PAD - 10*OFFSET
 
 //-------------------------------------------------------------
 // STRUCTURE DEFINITIONS
@@ -38,6 +45,11 @@
 struct pos_t{
     int x;                          // X Shot's Position
     int y;                          // Y Shot's Position
+};
+
+struct postrail_t{
+    float x;
+    float y;
 };
 
 // Shared memory structure definitios
@@ -51,7 +63,7 @@ struct mem_t{
 
     struct pos_t pos[MAX_SHOTS];    // Positions of all the Shots
     struct pos_t pos_target;        // Position of target
-    
+    struct postrail_t trajectory[XWIN * YWIN];  // Trajectory points
     int nball;                      // Number of Reader task
     int nBball;                     // Number of Blocked ball task
     int nW;                         // Number of writing process
@@ -96,6 +108,9 @@ void shot_create();
 
 /* Charge cannon */
 ptask charge_cannon();
+
+/* Task trajectory calculation */
+void trajectory_cannon(float speedx, float speedy);
 
 /* Manager for the game */
 void manager_game();

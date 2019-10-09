@@ -12,6 +12,7 @@
 // background color
 #define MSG_L 50  
 // string lenght
+#define RED 12
 //-------------------------------------------------------------
 
 /* Change rate and score value */
@@ -34,5 +35,8 @@ void gui_init();
 
 /* Import Bitmaps */
 void import_bitmap();
+
+/* Print trajectory preview */
+void update_trajectory(int color);
 
 #endif
