@@ -9,17 +9,32 @@
 #include "manager.h"
 #include "graphic.h"
 
+/* Create the cannon task and set the shared memory variable to the correct value */
+create_cannon()
+{
+    tpars params;
+
+    control_writer();
+    shared_m.end_charge = 0;
+    release_writer();
+
+    // Create cannon_charge task
+    params = init_param(PRIO_M, PERIOD_M);
+    ptask_create_param(charge_cannon, &params);
+}
+
 int main(void)
 {  
-    int k;                      // Character from keyboard
+    int k;                          // Character from keyboard
 
-    int bool_manager = 0;       // Check manager task activated
+    int bool_manager = 0;           // Check manager task activated
     int n_shots = 0;        
-    
-    int shot_pwr = 0;           // Power of the shot
-    float cannon_degree = 10;     //Start degree of cannon
-    float speed_x = 0;            // Horizontal speed
-    float speed_y = 0;            // Vertical speed
+    int shot_pwr = 0;               // Power of the shot
+
+    float cannon_degree = 0;        // Start degree of cannon
+    float cannon_rad;               // Degree of the cannon in radiant
+    float speed_x = 0;              // Horizontal speed
+    float speed_y = 0;              // Vertical speed
 
     tpars params;
 
@@ -48,15 +63,10 @@ int main(void)
             if (k == KEY_ENTER && bool_manager == 1)
             {
                 k = 0;
-
-                control_writer();
-                shared_m.end_charge = 0;
-                release_writer();
-
                 bool_manager = 2;
-                /* Create cannon_charge task */
-                params = init_param(PRIO_M, PERIOD_M);
-                ptask_create_param(charge_cannon, &params);
+
+                // Create the cannon task and set the shared memory variable to the correct value
+                create_cannon();
             }
 
             if (k == KEY_ENTER && bool_manager == 2)
@@ -74,41 +84,52 @@ int main(void)
                 printf("POTENZA!!: %d\n", shot_pwr);
             }
 
-            if ((k == KEY_UP || k == KEY_DOWN) && bool_manager == 3)
-            {
-                
-                do{
-                    
-                    if (k == KEY_UP)
+            while(bool_manager == 3)
+            { 
+                if(keypressed()) 
+                {   
+                    k = readkey() >> 8;                
+                    if (k == KEY_UP && cannon_degree <= MAX_DEG)
                     {
                         cannon_degree += 1;
+                        control_writer();
+                        shared_m.cannon_degree = cannon_degree;
+                        release_writer();
                         printf("Gradi cannone: %f\n",cannon_degree);
                     }
-                    else
+                    else if(k == KEY_DOWN && cannon_degree >= MIN_DEG)
                     {
                         cannon_degree -= 1 ;
+                        control_writer();
+                        shared_m.cannon_degree = cannon_degree;
+                        release_writer();
                         printf("Gradi cannone: %f\n",cannon_degree);
                     }
-                    float rad =  (cannon_degree * M_PI) / 180;
-                    printf("Radiant:%f\n",rad);
-                    speed_x = shot_pwr * cos(rad);
-                    printf("Horizontal v: %f\n",speed_x);
-                    speed_y = shot_pwr * sin(rad);
-                    printf("Vertical v: %f\n",speed_y);
-                    k = readkey() >> 8;
-                    trajectory_cannon(speed_x,speed_y);
-                }while(k != KEY_ENTER);
+                    else if (k == KEY_ENTER || k == KEY_ESC)
+                    {
+                        bool_manager = 4;
+                    }
 
-                
-                if(n_shots < MAX_SHOTS)
-                {
-                    printf("Make shot\n");
-                    shot_create();
-                    n_shots += 1;
-                    bool_manager = 1;
+                    cannon_rad = (cannon_degree * M_PI) / 180;
+                    printf("Radiant:%f\n",cannon_rad);
+
+                    speed_x = shot_pwr * cos(cannon_rad);
+                    printf("Horizontal v: %f\n",speed_x);
+
+                    speed_y = shot_pwr * sin(cannon_rad);
+                    printf("Vertical v: %f\n",speed_y);
+
+                    trajectory_cannon(speed_x,speed_y);
                 }
             }
-
+                
+            if(n_shots < MAX_SHOTS && bool_manager == 4)
+            {
+                printf("Make shot\n");
+                shot_create();
+                n_shots += 1;
+                bool_manager = 1;
+            }
         }
         
     }while(k != KEY_ESC);    

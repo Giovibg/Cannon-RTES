@@ -34,8 +34,8 @@ void check_target(struct pos_t *pos)
 /* Shot task */
 ptask shot()
 {
-    struct pos_t local_p;      // Ball local position 
-    struct postrail_t local_t[XWIN * YWIN];  //Trajectory local
+    struct pos_t local_p;                     // Ball local position 
+    struct postrail_t local_t[XWIN * YWIN];   // Trajectory local
     int j = 0;
     
     while(shared_m.trajectory[j].x != NO_POS)
@@ -49,9 +49,6 @@ ptask shot()
         
     }
     
-   // local_p.x = XWIN/2;
-   // local_p.y = YWIN/2;
-
     int index;                  // Index of the current Shot task
     int i = 0;
     index = ptask_get_index();

@@ -5,6 +5,7 @@
 #include "graphic.h"
 #include "manager.h"
 #include "shot.h"
+#include "target.h"
 
 // Params for Shot tasks
 static tpars shot_params;
@@ -19,9 +20,10 @@ void mem_t_init(struct mem_t *mem)
 
     mem->shot_pwr = 1;
     mem->end_charge = -1;
+    mem->cannon_degree = 0;
 
-    mem->pos_target.x = XWIN - PAD - 9*OFFSET;
-    mem->pos_target.y = YWIN - PAD - 10*OFFSET;
+    mem->pos_target.x = TARGET_X;
+    mem->pos_target.y = TARGET_Y;
 
     mem->nball = 0;
     mem->nBball = 0;
@@ -167,7 +169,6 @@ ptask charge_cannon()
 
     do
     {
-
         if(up)
         {
             shot_pwr += 1;
@@ -218,11 +219,9 @@ void trajectory_cannon(float speedx, float speedy)
         old_x = x;
         old_y = y;
         x = old_x + (speedx * dt);
-        //x += 1;
         y = old_y + (speedy * dt) - (0.5 * G * dt * dt);
         speedy =  speedy - (G * dt);
         printf("X: %f\n Y: %f\n",x,y);
-        //putpixel(screen, x, YWIN - y, 12);
         control_writer();
         shared_m.trajectory[i].x = x;
         shared_m.trajectory[i].y = YWIN - y;
@@ -251,5 +250,7 @@ void manager_game()
     /* Create graphic task */
     params = init_param(PRIO_G, PERIOD_G);
     ptask_create_param(game_play, &params);
+
+    ptask_create_param(target, &params);
 }
 

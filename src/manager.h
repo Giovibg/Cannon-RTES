@@ -37,6 +37,19 @@
 #define CANNON_X XWIN - PAD - 9*OFFSET
 // Cannon X position
 #define CANNON_Y YWIN - PAD - 10*OFFSET
+// Cannon X position
+#define TARGET_X XWIN - PAD - 14*OFFSET
+// Target X start position
+#define TARGET_Y YWIN - PAD - 10*OFFSET
+// Target Y start position
+#define MAX_DEG 20
+// Max degree of the cannon
+#define MIN_DEG 0
+// Max degree of the cannon
+#define MAX_TARGET_R TARGET_X + 30
+// Max right position of the target
+#define MAX_TARGET_L TARGET_X - 30
+// Max left position of the target
 
 //-------------------------------------------------------------
 // STRUCTURE DEFINITIONS
@@ -59,11 +72,14 @@ struct mem_t{
     int shots;                      // Number of bullets that has been fired
 
     int shot_pwr;                   // Power of the shot
-    int end_charge;
+    int end_charge;                 // Var to segnalate the end of the cannon charge process
+    int cannon_degree;              // Cannon rotation
 
     struct pos_t pos[MAX_SHOTS];    // Positions of all the Shots
     struct pos_t pos_target;        // Position of target
+
     struct postrail_t trajectory[XWIN * YWIN];  // Trajectory points
+    
     int nball;                      // Number of Reader task
     int nBball;                     // Number of Blocked ball task
     int nW;                         // Number of writing process
@@ -76,8 +92,6 @@ struct mem_t{
 
 // Shared memory structure
 struct mem_t shared_m;
-
-
 
 //-------------------------------------------------------------
 // FUNCTIONS

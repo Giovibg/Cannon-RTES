@@ -16,10 +16,28 @@ struct pos_t old[MAX_SHOTS];
 void import_bitmap()
 {
     target = load_bitmap("img/ship_r.bmp", NULL);
-    blit(target,screen,0,0,XWIN - PAD - 9*OFFSET,YWIN - PAD - 10*OFFSET,100,100);
+    draw_sprite(screen, target,TARGET_X,TARGET_Y);
     cannon = load_bitmap("img/can_r.bmp", NULL);
-    blit(cannon,screen,0,0,PAD + 5*OFFSET,YWIN - PAD - 5*OFFSET,80,80);
+    draw_sprite(screen, cannon,PAD + 4*OFFSET,YWIN - PAD - 5*OFFSET);
 }
+
+/* Change Target bitmap */
+void change_target(int x, int y)
+{
+    draw_sprite(screen, target,x,y);
+}
+
+/* Rotate cannon bitmap */
+void change_cannon(int cannon_degree)
+{
+    fixed f_cannon_degree;
+
+    f_cannon_degree = -itofix(cannon_degree);
+   
+    rotate_sprite(screen,cannon,PAD + 4*OFFSET,YWIN - PAD - 5*OFFSET, f_cannon_degree);
+    line(screen, PAD, YWIN - PAD, XWIN - PAD, YWIN - PAD, 15);
+}
+
 /* Change rate and score value */
 void change_rate_score(int new_shots, int new_score)
 {
@@ -59,13 +77,14 @@ void update_trajectory(int color)
     }
 }
 
-
 /* Task that update Game_Screen during play */
 ptask game_play()
 {
     int i, j;
     int end_charge = -1;
     int shot_pwr = 0;
+    int cannon_degree = 0;
+    int target_x = TARGET_X;
 
     for(i = 0; i < MAX_SHOTS; i++)
     {
@@ -73,20 +92,26 @@ ptask game_play()
         pos[i].y = NO_POS;
     }
 
+    import_bitmap();
+
     while(1)
     {  
         i = 0;
-        import_bitmap();
         
-        
-        change_rate_score(shots, score);
-
         control_reader();// Update global static variable of shots and score. Protected!
         shots = shared_m.shots; 
         score = shared_m.score;
         end_charge = shared_m.end_charge;
         shot_pwr = shared_m.shot_pwr;
+        cannon_degree = shared_m.cannon_degree;
+        target_x = shared_m.pos_target.x;
         release_reader();
+
+        change_rate_score(shots, score);
+
+        change_cannon(cannon_degree);
+
+        change_target(target_x, TARGET_Y);
 
         if (end_charge != -1)
         {
@@ -101,6 +126,7 @@ ptask game_play()
         }
        
         update_trajectory(RED);
+
         for(i = 0; i < MAX_SHOTS; i++)
         {
             old[i].x = pos[i].x;
@@ -126,10 +152,10 @@ void play_screen_init()
     clear_to_color(screen, BKG);
 
     // Drawing playground borders
+    line(screen, XWIN - PAD, PAD, PAD, PAD, 15);
     line(screen, PAD, YWIN - PAD, PAD, PAD, 15);
     line(screen, XWIN - PAD, YWIN - PAD, XWIN - PAD, PAD, 15);
     line(screen, PAD, YWIN - PAD, XWIN - PAD, YWIN - PAD, 15);
-    line(screen, XWIN - PAD, PAD, PAD, PAD, 15);
 
     /* Score statistic info */
     // Score and Rate hit/shot
@@ -138,6 +164,7 @@ void play_screen_init()
     // Game title
     textout_ex(screen, font, "CANNON BALL!", XWIN/2 - 45, PAD/2, 15, 0);
 
+    // Drawing cannon power bar
     line(screen,  PAD + 3*OFFSET, YWIN - PAD - OFFSET, PAD + 3*OFFSET, YWIN - PAD - 13*OFFSET, 15);
     line(screen,  PAD + 1*OFFSET, YWIN - PAD - OFFSET, PAD + 1*OFFSET, YWIN - PAD - 13*OFFSET, 15);
     line(screen,  PAD + 1*OFFSET, YWIN - PAD - 13*OFFSET, PAD + 3*OFFSET, YWIN - PAD - 13*OFFSET, 15);
