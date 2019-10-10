@@ -39,7 +39,5 @@ void import_bitmap();
 /* Print trajectory preview */
 void update_trajectory(int color);
 
-/* Delete trajectory preview */
-void delete_trajectory(int color);
 
 #endif

@@ -9,7 +9,7 @@ static int score = 0;
 static int shots = 0;
 static BITMAP *target;         
 static BITMAP *cannon;  
-static struct postrail_t trail[XWIN * YWIN]; 
+static struct postrail_t trail; 
 struct pos_t pos[MAX_SHOTS];
 struct pos_t old[MAX_SHOTS];
 
@@ -78,19 +78,24 @@ void update_trajectory(int color)
     }*/
 
     control_reader();           //import trajectory to local
-    trail[0].x = shared_m.trajectory[0].x;
-    trail[0].y = shared_m.trajectory[0].y;
+    trail.x[0] = shared_m.trajectory.x[0];
+    trail.y[0] = shared_m.trajectory.y[0];
     release_reader();
-    while(trail[j].x != NO_POS)
+    while(trail.x[j] != NO_POS)
     {
         j += 1;
         control_reader();
-        trail[j].x = shared_m.trajectory[j].x;
-        trail[j].y = shared_m.trajectory[j].y;
+        trail.x[j] = shared_m.trajectory.x[j];
+        trail.y[j] = shared_m.trajectory.y[j];
         release_reader();
-        putpixel(screen, trail[j].x, trail[j].y, color);
+        putpixel(screen, trail.x[j], trail.y[j], color);
     }
     
+}
+
+void delete_trajectory(int color)
+{
+
 }
 
 
@@ -144,6 +149,7 @@ ptask game_play()
         }
        
         update_trajectory(RED);
+
 
         for(i = 0; i < MAX_SHOTS; i++)
         {

@@ -61,9 +61,11 @@ struct pos_t{
 };
 
 struct postrail_t{
-    int x;
-    int y;
+    int x[XWIN];
+    int y[YWIN];
 };
+
+
 
 // Shared memory structure definitios
 struct mem_t{
@@ -75,11 +77,11 @@ struct mem_t{
     int end_charge;                 // Var to segnalate the end of the cannon charge process
     int new_trajectory;             // Boolean variable identify new trajectory
     int cannon_degree;              // Cannon rotation
-
     struct pos_t pos[MAX_SHOTS];    // Positions of all the Shots
     struct pos_t pos_target;        // Position of target
 
-    struct postrail_t trajectory[XWIN * YWIN];  // Trajectory points
+    struct postrail_t trajectory;  // Trajectory points
+    
     
     int nball;                      // Number of Reader task
     int nBball;                     // Number of Blocked ball task

@@ -35,7 +35,7 @@ ptask target()
         shared_m.pos_target.y = pos_target.y;
         release_writer();
 
-        sleep(1 );
-        //for(int j=0;j<100000000;j++);
+        //sleep(1 );
+        for(int j=0;j<100000000;j++);
     }
 }

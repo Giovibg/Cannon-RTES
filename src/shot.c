@@ -45,7 +45,7 @@ int check_target(int x, int y, int index)
 ptask shot()
 {
     struct pos_t local_p;                     // Ball local position 
-    struct postrail_t local_t[XWIN * YWIN];   // Trajectory local
+    struct postrail_t local_t;   // Trajectory local
     int index;                  // Index of the current Shot task
     int i, j = 0;               // tmp var
     int end = 0;                    // If == -1, the shot task must end
@@ -55,15 +55,15 @@ ptask shot()
     printf("Sono la pallina %d!\n", index);
 
     control_reader();
-    local_t[0].x = shared_m.trajectory[0].x;
-    local_t[0].y = shared_m.trajectory[0].y;
+    local_t.x[0] = shared_m.trajectory.x[0];
+    local_t.y[0] = shared_m.trajectory.y[0];
     release_reader();
-    while(local_t[j].x != NO_POS)      //Import trajectory to local
+    while(local_t.x[j] != NO_POS)      //Import trajectory to local
     {
         j += 1;
         control_reader();
-        local_t[j].x = shared_m.trajectory[j].x;
-        local_t[j].y = shared_m.trajectory[j].y;
+        local_t.x[j] = shared_m.trajectory.x[j];
+        local_t.y[j] = shared_m.trajectory.y[j];
         release_reader();
         // printf("Pallina traiettoria X:%f Y:%f\n",local_t[j].x, local_t[j].y);    
     }
@@ -79,12 +79,12 @@ ptask shot()
     while(end != 1)     //Draw ball position 
     {                   //till in border
         control_writer();
-        shared_m.pos[index].x = local_t[i].x;     //Write ball position
-        shared_m.pos[index].y = local_t[i].y;
+        shared_m.pos[index].x = local_t.x[i];     //Write ball position
+        shared_m.pos[index].y = local_t.y[i];
         release_writer();
-        printf("Y:%d\n",local_t[i].y);
-        bord = check_border(local_t[i].x, local_t[i].y, index);
-        targ = check_target(local_t[i].x, local_t[i].y, index);
+        printf("Y:%d\n",local_t.y[i]);
+        bord = check_border(local_t.x[i], local_t.y[i], index);
+        targ = check_target(local_t.x[i], local_t.y[i], index);
 
         end = bord + wall + targ;
         
@@ -92,6 +92,6 @@ ptask shot()
         
         ptask_wait_for_period();
     }
-    printf("out i: %d\n", local_t[i].y);
+    printf("out i: %d\n", local_t.y[i]);
 }
 

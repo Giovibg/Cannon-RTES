@@ -14,7 +14,6 @@ static tpars shot_params;
 void mem_t_init(struct mem_t *mem)
 {
     int i;
-
     mem->score = 0;
     mem->shots = 0;
 
@@ -37,13 +36,14 @@ void mem_t_init(struct mem_t *mem)
         mem->pos[i].y = NO_POS;
     }
     
-    for(int i=0; i < XWIN * YWIN; i++)
+    for(int i = 0; i < XWIN; i++)
     {
-        mem -> trajectory[i].x = NO_POS;
-        mem -> trajectory[i].y = NO_POS;
-
+        mem -> trajectory.x[i] = NO_POS; 
     }
-
+    for(int j=0; j < YWIN; j++)
+    {
+        mem -> trajectory.y[j] = NO_POS;
+    }
     sem_init(&mem->s_Read, 0, 0);
     sem_init(&mem->s_Write, 0, 0);
     sem_init(&mem->mutex, 0, 1);
@@ -224,8 +224,8 @@ void trajectory_cannon(float speedx, float speedy)
         speedy =  speedy - (G * dt);
         printf("X: %f\n Y: %f\n",x,y);
         control_writer();
-        shared_m.trajectory[i].x = (int) x;
-        shared_m.trajectory[i].y = (int) (YWIN - y);
+        shared_m.trajectory.x[i] = (int) x;
+        shared_m.trajectory.y[i] = (int) (YWIN - y);
         release_writer();
         i += 1;
         printf("valore i:%d\n",i);
