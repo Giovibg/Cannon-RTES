@@ -20,7 +20,8 @@ void mem_t_init(struct mem_t *mem)
 
     mem->shot_pwr = 1;
     mem->end_charge = -1;
-    mem->cannon_degree = 0;
+    mem->new_trajectory = 0;
+    mem->cannon_degree = -1;
 
     mem->pos_target.x = TARGET_X;
     mem->pos_target.y = TARGET_Y;
@@ -212,7 +213,7 @@ void trajectory_cannon(float speedx, float speedy)
     int i = 0;
     old_x = x =  PAD + 80 + 5*OFFSET;
     old_y = y = PAD + 5*OFFSET;
-    float dt = PERIOD_G * 0.0007; // TScale based on graphic period
+    float dt = PERIOD_G * 0.0049; // TScale based on graphic period
     
     while((x <= XWIN) && (YWIN - y < YWIN - PAD))
     {
@@ -223,8 +224,8 @@ void trajectory_cannon(float speedx, float speedy)
         speedy =  speedy - (G * dt);
         printf("X: %f\n Y: %f\n",x,y);
         control_writer();
-        shared_m.trajectory[i].x = x;
-        shared_m.trajectory[i].y = YWIN - y;
+        shared_m.trajectory[i].x = (int) x;
+        shared_m.trajectory[i].y = (int) (YWIN - y);
         release_writer();
         i += 1;
         printf("valore i:%d\n",i);

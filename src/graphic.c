@@ -8,9 +8,11 @@
 static int score = 0;
 static int shots = 0;
 static BITMAP *target;         
-static BITMAP *cannon;          
+static BITMAP *cannon;  
+static struct postrail_t trail[XWIN * YWIN]; 
 struct pos_t pos[MAX_SHOTS];
 struct pos_t old[MAX_SHOTS];
+
 
 /* Import Bitmaps */
 void import_bitmap()
@@ -64,18 +66,33 @@ void draw_ball(struct pos_t pos, int color)
 
 void update_trajectory(int color)
 {
-    struct pos_t trail;
     int j = 0;
-    while(shared_m.trajectory[j].x != -1)
+    /*while(shared_m.trajectory[j].x != NO_POS)
     {
         control_reader();
-        trail.x = shared_m.trajectory[j].x;
-        trail.y = shared_m.trajectory[j].y;
+        trail[j].x = shared_m.trajectory[j].x;
+        trail[j].y = shared_m.trajectory[j].y;
         release_reader();
-        putpixel(screen, trail.x, trail.y, color);
+        putpixel(screen, trail[j].x, trail[j].y, color);
         j += 1;
+    }*/
+
+    control_reader();           //import trajectory to local
+    trail[0].x = shared_m.trajectory[0].x;
+    trail[0].y = shared_m.trajectory[0].y;
+    release_reader();
+    while(trail[j].x != NO_POS)
+    {
+        j += 1;
+        control_reader();
+        trail[j].x = shared_m.trajectory[j].x;
+        trail[j].y = shared_m.trajectory[j].y;
+        release_reader();
+        putpixel(screen, trail[j].x, trail[j].y, color);
     }
+    
 }
+
 
 /* Task that update Game_Screen during play */
 ptask game_play()
@@ -83,7 +100,8 @@ ptask game_play()
     int i, j;
     int end_charge = -1;
     int shot_pwr = 0;
-    int cannon_degree = 0;
+    int cannon_degree = -1;
+    int old_cannon_degree = 0;
     int target_x = TARGET_X;
 
     for(i = 0; i < MAX_SHOTS; i++)

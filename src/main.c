@@ -74,12 +74,13 @@ int main(void)
                
                 control_writer();
                 shared_m.end_charge = -1;
+                shared_m.cannon_degree = 0;
                 release_writer();
 
                 control_reader();
                 shot_pwr = shared_m.shot_pwr;
                 release_reader();
-                shot_pwr *= 10;
+                shot_pwr *= 15;
                 bool_manager = 3;
                 printf("POTENZA!!: %d\n", shot_pwr);
             }
@@ -110,7 +111,7 @@ int main(void)
                         bool_manager = 4;
                     }
 
-                    cannon_rad = (cannon_degree * M_PI) / 180;
+                    cannon_rad = (cannon_degree * 5 * M_PI) / 180;
                     printf("Radiant:%f\n",cannon_rad);
 
                     speed_x = shot_pwr * cos(cannon_rad);

@@ -38,17 +38,17 @@
 // Cannon X position
 #define CANNON_Y YWIN - PAD - 10*OFFSET
 // Cannon X position
-#define TARGET_X XWIN - PAD - 14*OFFSET
+#define TARGET_X XWIN - PAD - 24*OFFSET
 // Target X start position
 #define TARGET_Y YWIN - PAD - 10*OFFSET
 // Target Y start position
-#define MAX_DEG 20
+#define MAX_DEG 25
 // Max degree of the cannon
 #define MIN_DEG 0
 // Max degree of the cannon
-#define MAX_TARGET_R TARGET_X + 30
+#define MAX_TARGET_R TARGET_X + 60
 // Max right position of the target
-#define MAX_TARGET_L TARGET_X - 30
+#define MAX_TARGET_L TARGET_X - 60
 // Max left position of the target
 
 //-------------------------------------------------------------
@@ -61,8 +61,8 @@ struct pos_t{
 };
 
 struct postrail_t{
-    float x;
-    float y;
+    int x;
+    int y;
 };
 
 // Shared memory structure definitios
@@ -73,6 +73,7 @@ struct mem_t{
 
     int shot_pwr;                   // Power of the shot
     int end_charge;                 // Var to segnalate the end of the cannon charge process
+    int new_trajectory;             // Boolean variable identify new trajectory
     int cannon_degree;              // Cannon rotation
 
     struct pos_t pos[MAX_SHOTS];    // Positions of all the Shots
