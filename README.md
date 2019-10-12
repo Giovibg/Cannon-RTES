@@ -8,14 +8,14 @@ wall. Height of the wall randomly generated when target catched
 
 Developed by Giovanni Bagnoli and Alessio Ruggi
 
-##Installation dependencies
+## Installation dependencies
 Project is based on graphic library `Allegro 4` and `ptask`
 To install allegro under debian-distro: sudo apt‐get install liballegro4.4 liballegro4.4‐dev
 
 `ptask` is a Periodic Real-Time Task interface facility to easily manage tasks.
 Based on pthread lib
 
-##Compile and Run
+## Compile and Run
 
 - `git clone` to clone project to local
 - `make all` to remove all compiled files in `/build` directory, then build
@@ -25,7 +25,7 @@ Based on pthread lib
 Application should be executed as superuser to use ptask
 
 
-##Tasks
+## Tasks
 
 - `N` ball tasks. Each ball shoted by the cannon is a task, that will follow a 
 dedicated trajectory based on cannon angle and power.
@@ -33,7 +33,7 @@ dedicated trajectory based on cannon angle and power.
 - Target task. Target should move slowly on the ground
 - Graphic task. To manage interaction of the screen every `PERIOD_G` milliseconds
 
-##Tasks Interactions
+## Tasks Interactions
 
 Different tasks should interact by themself in a consistent way.
 We have a shared memory struct(`shared_m`) were tasks can write or read data.
@@ -51,7 +51,7 @@ Same for readers: `control_reader()` -> read from shared mem ->`release_reader()
 
 Tasks are executed following a FIFO SCHEDULING
 
-##GamePlay
+## GamePlay
 
 Game play is based on keyboard interactions. To play, in order you should:
 1. Press `SPACE` to start the game.
