@@ -60,8 +60,22 @@ Game play is based on keyboard interactions. To play, in order you should:
 4. Press `ENTER` to shot the ball following trajectory.
 5. If target will be catched by ball, wall position will be randomly changed.
 
-Pressing `T` button, a shot trajectory, calculated at the specific intensity
+Pressing `T` button, a shot trajectory preview, calculated at the specific intensity
 and cannon degree choosen, will be shown.
+
+## Code Organization
+
+Code has been organized in different source files:
+- Main: Initialize ptask library, initialize allegro and keyboard interactions.
+- Manager: Initialize shared memory(`mem_t_init`), 
+writer protection(`control_writer`,`release_writer`), 
+reader protection(`control_reader`,`release_reader`), initialize tasks param(`init_param`),
+intensity shot bar task(`ptask charge_cannon`), trajectory calculation(`trajectory_cannon`).
+- Shot: Invoked after each shot to update ball position following relative trajectory.
+- Graphic: All graphic functions. Each thing printed on screen is here.
+- Target: `ptask_target` function makes target moving slowly
+
+
 
 
 
