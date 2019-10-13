@@ -30,8 +30,6 @@
 // Number of max possible shots
 #define MAX_PWR 10
 // Max power of the shot
-#define M_PI 3.1415926535
-// PI
 #define G 9.8
 // Gravity acceleration
 #define CANNON_X XWIN - PAD - 9*OFFSET
@@ -65,8 +63,6 @@ struct postrail_t{
     int y[YWIN];
 };
 
-
-
 // Shared memory structure definitios
 struct mem_t{
 
@@ -75,8 +71,8 @@ struct mem_t{
 
     int shot_pwr;                   // Power of the shot
     int end_charge;                 // Var to segnalate the end of the cannon charge process
-    int new_trajectory;             // Boolean variable identify new trajectory
     int cannon_degree;              // Cannon rotation
+    int update_traj;
     struct pos_t pos[MAX_SHOTS];    // Positions of all the Shots
     struct pos_t pos_target;        // Position of target
 
@@ -99,37 +95,37 @@ struct mem_t shared_m;
 //-------------------------------------------------------------
 // FUNCTIONS
 //-------------------------------------------------------------
-/* Initialization for shared memory */
+// Initialization for shared memory 
 void mem_t_init(struct mem_t *mem);
 
-/* First phase of writers protection */
+// First phase of writers protection 
 void control_writer();
 
-/* Release phase of writers protection */
+// Release phase of writers protection 
 void release_writer();
 
-/* First phase of readers protection */
+// First phase of readers protection 
 void control_reader();
 
-/* Release phase of readers protection */
+// Release phase of readers protection 
 void release_reader();
 
-/* Initialize Ball task params */
+// Initialize task params 
 tpars init_param(int PRIO, int PERIOD);
 
-/* Initialization of the game shared memory*/
-void manager_init();
+// Create a new Shot task
+int shot_create();
 
-/* Create a new Shot task*/
-void shot_create();
+// Reset shared Trail
+void reset_shared_trail();
 
-/* Charge cannon */
-ptask charge_cannon();
-
-/* Task trajectory calculation */
+// Task trajectory calculation 
 void trajectory_cannon(float speedx, float speedy);
 
-/* Manager for the game */
-void manager_game();
+// Manager for the game
+int manager_game();
+
+// Charge cannon 
+ptask charge_cannon();
 
 #endif

@@ -19,8 +19,8 @@ void mem_t_init(struct mem_t *mem)
 
     mem->shot_pwr = 1;
     mem->end_charge = -1;
-    mem->new_trajectory = 0;
     mem->cannon_degree = -1;
+    mem->update_traj = 0;
 
     mem->pos_target.x = TARGET_X;
     mem->pos_target.y = TARGET_Y;
@@ -38,11 +38,11 @@ void mem_t_init(struct mem_t *mem)
     
     for(int i = 0; i < XWIN; i++)
     {
-        mem -> trajectory.x[i] = NO_POS; 
+        mem->trajectory.x[i] = NO_POS; 
     }
     for(int j=0; j < YWIN; j++)
     {
-        mem -> trajectory.y[j] = NO_POS;
+        mem->trajectory.y[j] = NO_POS;
     }
     sem_init(&mem->s_Read, 0, 0);
     sem_init(&mem->s_Write, 0, 0);
@@ -141,14 +141,8 @@ tpars init_param(int PRIO, int PERIOD)
     return params;
 }
 
-/* Initialization of the game shared memory */
-void manager_init()
-{
-    mem_t_init(&shared_m);
-}
-
 /* Create a new Shot task*/
-void shot_create()
+int shot_create()
 {
     int ret;
 
@@ -157,6 +151,79 @@ void shot_create()
     ret = ptask_create_param(shot, &shot_params);
 
     printf("Ho creato pallina con ret: %d\n", ret);
+
+    return 1;
+}
+
+/* Reset shared Trail */
+void reset_shared_trail()
+{
+    int i = 0;
+    for(i = 0; i <= XWIN; i++)
+    {
+        shared_m.trajectory.x[i] = NO_POS;
+    }
+    i = 0;
+    for(i = 0; i <= YWIN; i++)
+    {
+        shared_m.trajectory.y[i] = NO_POS;
+    }
+}
+
+/* Task trajectory calculation */
+void trajectory_cannon(float speedx, float speedy)
+{
+    float old_x, old_y;
+    float x, y;
+    int i = 0;
+    old_x = x =  PAD + 80 + 5*OFFSET;
+    old_y = y = PAD + 5*OFFSET;
+    float dt = PERIOD_G * 0.0049; // TScale based on graphic period
+    
+    control_writer();
+    reset_shared_trail();
+    release_writer();
+
+    while((x <= XWIN) && (YWIN - y < YWIN - PAD))
+    {
+        old_x = x;
+        old_y = y;
+        x = old_x + (speedx * dt);
+        y = old_y + (speedy * dt) - (0.5 * G * dt * dt);
+        speedy =  speedy - (G * dt);
+        // printf("X: %f\n Y: %f\n",x,y);
+        control_writer();
+        shared_m.trajectory.x[i] = (int) x;
+        shared_m.trajectory.y[i] = (int) (YWIN - y);
+        release_writer();
+        i += 1;
+        // printf("valore i:%d\n",i);
+    }
+}
+
+/* Manager for the game */
+int manager_game()
+{  
+    int task_index;                 // var per debug
+    tpars params;                   // Params for Graphic task
+
+    // linee per debug
+    task_index = ptask_get_index(); 
+    printf("Task index manager: %d\n",task_index);
+
+    /* Initialization of the game shared memory */
+    mem_t_init(&shared_m);
+   
+    /* Draws game interface and screen */
+    play_screen_init();
+
+    /* Create graphic task */
+    params = init_param(PRIO_G, PERIOD_G);
+    ptask_create_param(game_play, &params);
+
+    ptask_create_param(target, &params);
+
+    return 1;
 }
 
 /* Charge cannon */
@@ -203,55 +270,5 @@ ptask charge_cannon()
     } while(end_charge != -1);
 
     return;
-}
-
-/* Task trajectory calculation */
-void trajectory_cannon(float speedx, float speedy)
-{
-    float old_x, old_y;
-    float x, y;
-    int i = 0;
-    old_x = x =  PAD + 80 + 5*OFFSET;
-    old_y = y = PAD + 5*OFFSET;
-    float dt = PERIOD_G * 0.0049; // TScale based on graphic period
-    
-    while((x <= XWIN) && (YWIN - y < YWIN - PAD))
-    {
-        old_x = x;
-        old_y = y;
-        x = old_x + (speedx * dt);
-        y = old_y + (speedy * dt) - (0.5 * G * dt * dt);
-        speedy =  speedy - (G * dt);
-        printf("X: %f\n Y: %f\n",x,y);
-        control_writer();
-        shared_m.trajectory.x[i] = (int) x;
-        shared_m.trajectory.y[i] = (int) (YWIN - y);
-        release_writer();
-        i += 1;
-        printf("valore i:%d\n",i);
-    }
-}
-
-/* Manager for the game */
-void manager_game()
-{  
-    int task_index;                 // var per debug
-    tpars params;                   // Params for Graphic task
-
-    // linee per debug
-    task_index = ptask_get_index(); 
-    printf("Task index manager: %d\n",task_index);
-
-    /* Initialization of the game shared memory */
-    manager_init();
-   
-    /* Draws game interface and screen */
-    play_screen_init();
-
-    /* Create graphic task */
-    params = init_param(PRIO_G, PERIOD_G);
-    ptask_create_param(game_play, &params);
-
-    ptask_create_param(target, &params);
 }
 

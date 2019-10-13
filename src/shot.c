@@ -31,7 +31,7 @@ int check_target(int x, int y, int index)
         y >= (target_p.y - OFFSET))    //Condition ball hit target
     {
         control_writer();
-        shared_m.score += 1;    //Update score
+        shared_m.score += 1;                //Update score
         shared_m.pos[index].x = NO_POS;     //Delete ball
         shared_m.pos[index].y = NO_POS;
         release_writer();
@@ -44,7 +44,6 @@ int check_target(int x, int y, int index)
 /* Shot task */
 ptask shot()
 {
-    struct pos_t local_p;                     // Ball local position 
     struct postrail_t local_t;   // Trajectory local
     int index;                  // Index of the current Shot task
     int i, j = 0;               // tmp var
@@ -82,7 +81,7 @@ ptask shot()
         shared_m.pos[index].x = local_t.x[i];     //Write ball position
         shared_m.pos[index].y = local_t.y[i];
         release_writer();
-        printf("Y:%d\n",local_t.y[i]);
+        // printf("Y:%d\n",local_t.y[i]);
         bord = check_border(local_t.x[i], local_t.y[i], index);
         targ = check_target(local_t.x[i], local_t.y[i], index);
 
@@ -92,6 +91,6 @@ ptask shot()
         
         ptask_wait_for_period();
     }
-    printf("out i: %d\n", local_t.y[i]);
+    // printf("out i: %d\n", local_t.y[i]);
 }
 

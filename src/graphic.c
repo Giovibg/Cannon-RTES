@@ -5,14 +5,11 @@
 #include "graphic.h"
 #include "manager.h"
 
-static int score = 0;
-static int shots = 0;
 static BITMAP *target;         
 static BITMAP *cannon;  
 static struct postrail_t trail; 
 struct pos_t pos[MAX_SHOTS];
 struct pos_t old[MAX_SHOTS];
-
 
 /* Import Bitmaps */
 void import_bitmap()
@@ -21,6 +18,21 @@ void import_bitmap()
     draw_sprite(screen, target,TARGET_X,TARGET_Y);
     cannon = load_bitmap("img/can_r.bmp", NULL);
     draw_sprite(screen, cannon,PAD + 4*OFFSET,YWIN - PAD - 5*OFFSET);
+}
+
+/* Draws cannon power bar's line */
+void draw_Pwrline(int shot_pwr)
+{
+    int j;
+
+    for(j = 1; j <= shot_pwr; j++)
+    {
+        line(screen,  PAD + 1*OFFSET, YWIN - PAD - j*OFFSET, PAD + 3*OFFSET, YWIN - PAD - j*OFFSET, 15);
+    }
+    for(;j <= 10; j++)
+    {
+        line(screen,  PAD + 1*OFFSET, YWIN - PAD - j*OFFSET, PAD + 3*OFFSET, YWIN - PAD - j*OFFSET, 0);
+    }
 }
 
 /* Change Target bitmap */
@@ -43,130 +55,68 @@ void change_cannon(int cannon_degree)
 /* Change rate and score value */
 void change_rate_score(int new_shots, int new_score)
 {
-    shots = new_shots;
-    score = new_score;
-
     // tmp var for strings
     char s[MSG_L];
     char r[MSG_L];
     
     // Update rate graphic
-    sprintf(r, "Rate: %d/%d", score, shots);
+    sprintf(r, "Rate: %d/%d", new_score, new_shots);
     textout_ex(screen, font, r, XWIN - PAD - 70, PAD/2, 15, 0);
 
     // Update score graphic
-    sprintf(s, "Score: %d", score);
+    sprintf(s, "Score: %d", new_score);
     textout_ex(screen, font, s, PAD, PAD/2, 15, 0);
 }
 
-void draw_ball(struct pos_t pos, int color)
+/* Draw a new Shot ball */
+void draw_Shots(struct pos_t pos, int color)
 {
     circlefill(screen, pos.x, pos.y, RADIUS, color);
 }
 
-void update_trajectory(int color)
+/* Draw playground borders */
+void draw_PwrBar()
+{
+    line(screen,  PAD + 3*OFFSET, YWIN - PAD - OFFSET, PAD + 3*OFFSET, YWIN - PAD - 13*OFFSET, 15);
+    line(screen,  PAD + 1*OFFSET, YWIN - PAD - OFFSET, PAD + 1*OFFSET, YWIN - PAD - 13*OFFSET, 15);
+    line(screen,  PAD + 1*OFFSET, YWIN - PAD - 13*OFFSET, PAD + 3*OFFSET, YWIN - PAD - 13*OFFSET, 15);
+}
+
+/* Draw playground borders */
+void draw_Borders()
+{  
+    line(screen, XWIN - PAD, PAD, PAD, PAD, 15);
+    line(screen, PAD, YWIN - PAD, PAD, PAD, 15);
+    line(screen, XWIN - PAD, YWIN - PAD, XWIN - PAD, PAD, 15);
+    line(screen, PAD, YWIN - PAD, XWIN - PAD, YWIN - PAD, 15);
+}
+
+void retrieve_trajectory()
 {
     int j = 0;
-    /*while(shared_m.trajectory[j].x != NO_POS)
-    {
-        control_reader();
-        trail[j].x = shared_m.trajectory[j].x;
-        trail[j].y = shared_m.trajectory[j].y;
-        release_reader();
-        putpixel(screen, trail[j].x, trail[j].y, color);
-        j += 1;
-    }*/
 
     control_reader();           //import trajectory to local
     trail.x[0] = shared_m.trajectory.x[0];
     trail.y[0] = shared_m.trajectory.y[0];
     release_reader();
-    while(trail.x[j] != NO_POS)
-    {
-        j += 1;
+    while(trail.x[j] != NO_POS) // STA ROBA NON È BELLA, XK XWIN > YWIN,
+    {                           // SHAREDM.TRAJECTORY.X[XWIN] È UN VALORE,
+        j += 1;                 // SHAREDM.TRAJECTORY.Y[XWIN] È FUORI ARRAY
         control_reader();
         trail.x[j] = shared_m.trajectory.x[j];
         trail.y[j] = shared_m.trajectory.y[j];
         release_reader();
+    }
+}
+
+void update_trajectory(int color)
+{
+    int j = 0;
+    while(trail.x[j] != NO_POS) // STA ROBA NON È BELLA, XK XWIN > YWIN,
+    {                           // SHAREDM.TRAJECTORY.X[XWIN] È UN VALORE,
+                                // SHAREDM.TRAJECTORY.Y[XWIN] È FUORI ARRAY
         putpixel(screen, trail.x[j], trail.y[j], color);
-    }
-    
-}
-
-void delete_trajectory(int color)
-{
-
-}
-
-
-/* Task that update Game_Screen during play */
-ptask game_play()
-{
-    int i, j;
-    int end_charge = -1;
-    int shot_pwr = 0;
-    int cannon_degree = -1;
-    int old_cannon_degree = 0;
-    int target_x = TARGET_X;
-
-    for(i = 0; i < MAX_SHOTS; i++)
-    {
-        pos[i].x = NO_POS;
-        pos[i].y = NO_POS;
-    }
-
-    import_bitmap();
-
-    while(1)
-    {  
-        i = 0;
-        
-        control_reader();// Update global static variable of shots and score. Protected!
-        shots = shared_m.shots; 
-        score = shared_m.score;
-        end_charge = shared_m.end_charge;
-        shot_pwr = shared_m.shot_pwr;
-        cannon_degree = shared_m.cannon_degree;
-        target_x = shared_m.pos_target.x;
-        release_reader();
-
-        change_rate_score(shots, score);
-
-        change_cannon(cannon_degree);
-
-        change_target(target_x, TARGET_Y);
-
-        if (end_charge != -1)
-        {
-            for(j = 1; j <= shot_pwr; j++)
-            {
-                line(screen,  PAD + 1*OFFSET, YWIN - PAD - j*OFFSET, PAD + 3*OFFSET, YWIN - PAD - j*OFFSET, 15);
-            }
-            for(;j <= 10; j++)
-            {
-                line(screen,  PAD + 1*OFFSET, YWIN - PAD - j*OFFSET, PAD + 3*OFFSET, YWIN - PAD - j*OFFSET, 0);
-            }
-        }
-       
-        update_trajectory(RED);
-
-
-        for(i = 0; i < MAX_SHOTS; i++)
-        {
-            old[i].x = pos[i].x;
-            old[i].y = pos[i].y;
-
-            control_reader();
-            pos[i].x = shared_m.pos[i].x;
-            pos[i].y = shared_m.pos[i].y;
-            release_reader();
-            draw_ball(old[i], BKG);
-            if(pos[i].x != NO_POS && pos[i].y != NO_POS)
-            {
-                draw_ball(pos[i], WHITE);
-            }
-        }
-        ptask_wait_for_period();
+        j += 1;   
     }
 }
 
@@ -175,11 +125,8 @@ void play_screen_init()
 {
     clear_to_color(screen, BKG);
 
-    // Drawing playground borders
-    line(screen, XWIN - PAD, PAD, PAD, PAD, 15);
-    line(screen, PAD, YWIN - PAD, PAD, PAD, 15);
-    line(screen, XWIN - PAD, YWIN - PAD, XWIN - PAD, PAD, 15);
-    line(screen, PAD, YWIN - PAD, XWIN - PAD, YWIN - PAD, 15);
+    /* Drawing playground borders */
+    draw_Borders();
 
     /* Score statistic info */
     // Score and Rate hit/shot
@@ -189,9 +136,7 @@ void play_screen_init()
     textout_ex(screen, font, "CANNON BALL!", XWIN/2 - 45, PAD/2, 15, 0);
 
     // Drawing cannon power bar
-    line(screen,  PAD + 3*OFFSET, YWIN - PAD - OFFSET, PAD + 3*OFFSET, YWIN - PAD - 13*OFFSET, 15);
-    line(screen,  PAD + 1*OFFSET, YWIN - PAD - OFFSET, PAD + 1*OFFSET, YWIN - PAD - 13*OFFSET, 15);
-    line(screen,  PAD + 1*OFFSET, YWIN - PAD - 13*OFFSET, PAD + 3*OFFSET, YWIN - PAD - 13*OFFSET, 15);
+    draw_PwrBar();
 }
 
 /* Draws menu interface */
@@ -200,10 +145,7 @@ void menu_screen_init()
     clear_to_color(screen, BKG);
 
      // Drawing playground borders
-    line(screen, PAD, YWIN - PAD, PAD, PAD, 15);
-    line(screen, XWIN - PAD, YWIN - PAD, XWIN - PAD, PAD, 15);
-    line(screen, PAD, YWIN - PAD, XWIN - PAD, YWIN - PAD, 15);
-    line(screen, XWIN - PAD, PAD, PAD, PAD, 15);
+    draw_Borders();
 
     // tmp var to for writing message
     char s[MSG_L];
@@ -230,7 +172,7 @@ void display_init()
     install_keyboard();
 }
 
-/* Initialize graphic environment */
+// Initialize graphic environment
 void gui_init()
 {
     // Initialize display and keyboard interactions
@@ -238,4 +180,80 @@ void gui_init()
 
     // Draws game interface and screen
     menu_screen_init();
+}
+
+/* Task that update Game_Screen during play */
+ptask game_play()
+{
+    int i;
+    int shots, score;
+    int end_charge = -1;
+    int shot_pwr = 0;
+    int cannon_degree = -1;
+    int old_cannon_degree = -1;
+    int target_x = TARGET_X;
+    int update_traj = 0;
+
+    for(i = 0; i < MAX_SHOTS; i++)
+    {
+        pos[i].x = NO_POS;
+        pos[i].y = NO_POS;
+    }
+
+    import_bitmap();
+
+    while(1)
+    {  
+        i = 0;  
+
+        // Retrieve necessary data for updating graphics 
+        // from Shared Memory. Protected!
+        control_reader();
+        shots = shared_m.shots; 
+        score = shared_m.score;
+        end_charge = shared_m.end_charge;
+        shot_pwr = shared_m.shot_pwr;
+        cannon_degree = shared_m.cannon_degree;
+        target_x = shared_m.pos_target.x;
+        update_traj = shared_m.update_traj;
+        release_reader();
+
+        if(old_cannon_degree != cannon_degree)
+        {
+            retrieve_trajectory();
+            old_cannon_degree = cannon_degree;
+        }
+
+        play_screen_init();
+        change_rate_score(shots, score);
+        change_cannon(cannon_degree);
+        change_target(target_x, TARGET_Y);
+
+        if (end_charge != -1)
+        {
+            draw_Pwrline(shot_pwr);
+        }
+
+        if(update_traj)
+        {
+           update_trajectory(RED);
+        }
+
+        for(i = 0; i < MAX_SHOTS; i++)
+        {
+            old[i].x = pos[i].x;
+            old[i].y = pos[i].y;
+
+            control_reader();
+            pos[i].x = shared_m.pos[i].x;
+            pos[i].y = shared_m.pos[i].y;
+            release_reader();
+            draw_Shots(old[i], BKG);
+            if(pos[i].x != NO_POS && pos[i].y != NO_POS)
+            {
+                draw_Shots(pos[i], WHITE);
+            }
+        }
+        ptask_wait_for_period();
+    }
 }
