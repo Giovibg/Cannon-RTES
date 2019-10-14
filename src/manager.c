@@ -215,7 +215,7 @@ int manager_game()
     mem_t_init(&shared_m);
    
     /* Draws game interface and screen */
-    play_screen_init();
+    //play_screen_init();
 
     /* Create graphic task */
     params = init_param(PRIO_G, PERIOD_G);

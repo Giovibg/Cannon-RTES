@@ -57,7 +57,7 @@ ptask shot()
     local_t.x[0] = shared_m.trajectory.x[0];
     local_t.y[0] = shared_m.trajectory.y[0];
     release_reader();
-    while(local_t.x[j] != NO_POS)      //Import trajectory to local
+    while(local_t.y[j] != NO_POS)      //Import trajectory to local
     {
         j += 1;
         control_reader();

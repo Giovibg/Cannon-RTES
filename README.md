@@ -38,15 +38,16 @@ dedicated trajectory based on cannon angle and power.
 Different tasks should interact by themself in a consistent way.
 We have a shared memory struct(`shared_m`) were tasks can write or read data.
 Consistency and mutual exclusion are guaranteed by mutex and private semaphores.
-Conditions are generally managed in a Readers / Writers way:
-- Readers: many readers can read from the shared memory at the same time.
-- Writers: when one writer is writing something, nobody could read access to the  
- shared mem. 
+Conditions are generally managed in a Reader / Writer approach:
+- **Readers**: many readers can read from the shared memory at the same time.
+- **Writers**: when one writer is writing something, neither reader nor writer
+could access the shared mem. 
 
-Each time someone should write to `shared_mem`, before access a first function  
-`control_writer()` should be called to initialize private semaphore, after we  
-could to shared memory in a protected way, then a `release_writer()` function  
-will release private semaphore. 
+Each time something should written to `shared_mem`, firstly we need to call  
+`control_writer()` function to initialize private semaphore, after we  
+could write to shared memory in a protected way, then a `release_writer()` function  
+will release private semaphore.
+ 
 Same for readers: `control_reader()` -> read from shared mem ->`release_reader()`
 
 Tasks are executed following a FIFO SCHEDULING

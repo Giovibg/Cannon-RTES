@@ -18,7 +18,7 @@
 // Offset bitmap target
 #define NO_POS -1
 // Alias no position ball
-#define PERIOD_G 20            // BISOGNA METTERE UN VALORE OTTIMO NON A CASO  
+#define PERIOD_G 25            // BISOGNA METTERE UN VALORE OTTIMO NON A CASO  
 // Period Graphic task
 #define PRIO_G 8
 // Priority Graphic task
