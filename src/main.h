@@ -4,10 +4,6 @@
 //-------------------------------------------------------------
 // GLOBAL CONSTANTS
 //-------------------------------------------------------------
-// Period manager task
-#define PERIOD_M 10
-// Priority manager task
-#define PRIO_M 10
 // Max value for power shot
 #define MAX_SHOT 10
 // PIGRECO
@@ -16,6 +12,7 @@
 //-------------------------------------------------------------
 // FUNCTIONS
 //-------------------------------------------------------------
+
 // Set if trajectory should be updated. Protected!
 // Bool can be 0 or 1
 // 0 -> Don't update trajectory

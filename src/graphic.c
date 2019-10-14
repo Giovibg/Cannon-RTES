@@ -99,7 +99,7 @@ void retrieve_trajectory()
     trail.x[0] = shared_m.trajectory.x[0];
     trail.y[0] = shared_m.trajectory.y[0];
     release_reader();
-    while(trail.x[j] != NO_POS) // STA ROBA NON È BELLA, XK XWIN > YWIN,
+    while(trail.y[j] != NO_POS) // STA ROBA NON È BELLA, XK XWIN > YWIN,
     {                           // SHAREDM.TRAJECTORY.X[XWIN] È UN VALORE,
         j += 1;                 // SHAREDM.TRAJECTORY.Y[XWIN] È FUORI ARRAY
         control_reader();
@@ -112,7 +112,7 @@ void retrieve_trajectory()
 void update_trajectory(int color)
 {
     int j = 0;
-    while(trail.x[j] != NO_POS) // STA ROBA NON È BELLA, XK XWIN > YWIN,
+    while(trail.y[j] != NO_POS) // STA ROBA NON È BELLA, XK XWIN > YWIN,
     {                           // SHAREDM.TRAJECTORY.X[XWIN] È UN VALORE,
                                 // SHAREDM.TRAJECTORY.Y[XWIN] È FUORI ARRAY
         putpixel(screen, trail.x[j], trail.y[j], color);
@@ -189,6 +189,7 @@ ptask game_play()
     int shots, score;
     int end_charge = -1;
     int shot_pwr = 0;
+    int old_pwr = 0;
     int cannon_degree = -1;
     int old_cannon_degree = -1;
     int target_x = TARGET_X;
@@ -218,13 +219,20 @@ ptask game_play()
         update_traj = shared_m.update_traj;
         release_reader();
 
-        if(old_cannon_degree != cannon_degree)
+        play_screen_init();
+
+        if(old_cannon_degree != cannon_degree || old_pwr != shot_pwr)
         {
             retrieve_trajectory();
             old_cannon_degree = cannon_degree;
+            old_pwr = shot_pwr;
         }
 
-        play_screen_init();
+        if(update_traj)
+        {
+           update_trajectory(RED);
+        }
+
         change_rate_score(shots, score);
         change_cannon(cannon_degree);
         change_target(target_x, TARGET_Y);
@@ -232,11 +240,6 @@ ptask game_play()
         if (end_charge != -1)
         {
             draw_Pwrline(shot_pwr);
-        }
-
-        if(update_traj)
-        {
-           update_trajectory(RED);
         }
 
         for(i = 0; i < MAX_SHOTS; i++)

@@ -178,7 +178,7 @@ void trajectory_cannon(float speedx, float speedy)
     int i = 0;
     old_x = x =  PAD + 80 + 5*OFFSET;
     old_y = y = PAD + 5*OFFSET;
-    float dt = PERIOD_G * 0.0049; // TScale based on graphic period
+    float dt = PERIOD_G * 0.0042; // TScale based on graphic period
     
     control_writer();
     reset_shared_trail();
@@ -221,6 +221,8 @@ int manager_game()
     params = init_param(PRIO_G, PERIOD_G);
     ptask_create_param(game_play, &params);
 
+    /* Create Target task */
+    params = init_param(PRIO_T, PERIOD_T);
     ptask_create_param(target, &params);
 
     return 1;
@@ -232,7 +234,6 @@ ptask charge_cannon()
     int up = 1;                 // Var that says if the pwr should grow or decrease
     int shot_pwr = 0;
     int end_charge = 0;
-
     int pwr;
 
     do
@@ -265,8 +266,8 @@ ptask charge_cannon()
         pwr = shared_m.shot_pwr;
         release_reader();
 
-        printf("show_pwe: %d\n", pwr);
-        sleep(1);
+        ptask_wait_for_period();
+
     } while(end_charge != -1);
 
     return;

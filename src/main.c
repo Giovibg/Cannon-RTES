@@ -28,18 +28,29 @@ void update_CannonDegree(int cannon_degree)
     release_writer();
 }
 
+void speedxy(int shot_pwr)
+{
+    float speed_x = 0;              // Horizontal speed
+    float speed_y = 0;              // Vertical speed
+    float cannon_rad;               // Degree of the cannon in radiant
+
+    cannon_rad = (cannon_degree * 5 * PIGRECO) / 180;
+    // printf("Radiant:%f\n",cannon_rad);
+    speed_x = shot_pwr * cos(cannon_rad);
+    // printf("Horizontal v: %f\n",speed_x);
+
+    speed_y = shot_pwr * sin(cannon_rad);
+    // printf("Vertical v: %f\n",speed_y);
+    trajectory_cannon(speed_x,speed_y);
+}
+
 /* Phase where the user can set the Cannon angle */
 int set_CannonAngle(int shot_pwr)
 {
     int bool_manager = 3;           // Var to check if change to next phase
-    float cannon_rad;               // Degree of the cannon in radiant
-    float speed_x = 0;              // Horizontal speed
-    float speed_y = 0;              // Vertical speed
-
+    
     if(keypressed()) 
-    {       
-        set_UpdateTrajectory(1);
-
+    {    
         k = readkey() >> 8;                
         if (k == KEY_UP && cannon_degree <= MAX_DEG)
         {
@@ -60,14 +71,7 @@ int set_CannonAngle(int shot_pwr)
             bool_manager = 5;
         }
 
-        cannon_rad = (cannon_degree * 5 * PIGRECO) / 180;
-        // printf("Radiant:%f\n",cannon_rad);
-        speed_x = shot_pwr * cos(cannon_rad);
-        // printf("Horizontal v: %f\n",speed_x);
-
-        speed_y = shot_pwr * sin(cannon_rad);
-        // printf("Vertical v: %f\n",speed_y);
-        trajectory_cannon(speed_x,speed_y);
+        speedxy(shot_pwr);
     }
 
     return bool_manager;
@@ -80,14 +84,13 @@ int get_CannonPwr()
 
     control_writer();
     shared_m.end_charge = -1;
-    shared_m.cannon_degree = -1;
     release_writer();
 
     control_reader();
     shot_pwr = shared_m.shot_pwr;
     release_reader();
 
-    return 15*shot_pwr;
+    return 12*shot_pwr;
 }
 
 /* Create the cannon task and set the shared memory variable to the correct value */
@@ -111,6 +114,7 @@ int main(void)
     int bool_manager = 0;               // Check manager task activated
     int n_shots = 0;        
     int shot_pwr = 0;                   // Power of the shot
+    int last_degree = 0;                    // Degree of the previw  
 
     gui_init();
     /* Ptask initialization */
@@ -134,6 +138,8 @@ int main(void)
             {
                 shot_pwr = get_CannonPwr();
                 bool_manager = 3;
+                set_UpdateTrajectory(1);
+                speedxy(shot_pwr);
             }
             /* Set the cannon angle */
             while(bool_manager == 3)
@@ -141,11 +147,10 @@ int main(void)
                 bool_manager = set_CannonAngle(shot_pwr);
             }
 
-            set_UpdateTrajectory(0);
-
             /* Create a new Shot  */
             if(n_shots < MAX_SHOTS && bool_manager == 4)
             {   
+                set_UpdateTrajectory(0);
                 n_shots += 1;
                 bool_manager = shot_create();   
             }

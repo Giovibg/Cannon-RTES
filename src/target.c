@@ -1,6 +1,12 @@
 #include "ptask.h"
 #include "manager.h"
 
+/* Let the */
+void my_sleep(float s)
+{
+
+}
+
 /* Target Task */
 ptask target()
 {
@@ -35,7 +41,6 @@ ptask target()
         shared_m.pos_target.y = pos_target.y;
         release_writer();
 
-        //sleep(1 );
-        for(int j=0;j<100000000;j++);
+        ptask_wait_for_period();
     }
 }

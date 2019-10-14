@@ -18,14 +18,22 @@
 // Offset bitmap target
 #define NO_POS -1
 // Alias no position ball
-#define PERIOD_G 20
+#define PERIOD_G 20            // BISOGNA METTERE UN VALORE OTTIMO NON A CASO  
 // Period Graphic task
 #define PRIO_G 8
 // Priority Graphic task
 #define PERIOD_B 20
 // Period Shot task
 #define PRIO_B 9
-// Priority Shot task
+// Priority Graphic task
+#define PERIOD_T 500
+// Period Target task
+#define PRIO_T 9
+// Period manager task
+#define PERIOD_M 400
+// Priority manager task
+#define PRIO_M 10
+// Priority Target task
 #define MAX_SHOTS 90
 // Number of max possible shots
 #define MAX_PWR 10
