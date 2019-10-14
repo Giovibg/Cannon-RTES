@@ -1,6 +1,7 @@
 #include "manager.h"
 #include "ptask.h"
-
+#include "shot.h"
+#include <stdlib.h>
 /*Check shot out of borders */
 int check_border(int x, int y, int index) 
 {
@@ -25,17 +26,38 @@ int check_target(int x, int y, int index)
     int ret = 0;
     struct pos_t target_p;
     control_reader();
-    target_p = shared_m.pos_target;     //Get target position. Protected!
+    target_p.x = shared_m.pos_target.x;     //Get target position. Protected!
+    target_p.y = shared_m.pos_target.y;
     release_reader();
-    if (x >= (target_p.x - OFFSET) && 
-        y >= (target_p.y - OFFSET))    //Condition ball hit target
+    if (x >= (target_p.x - RADIUS) && 
+        y >= (target_p.y - OFFSET) && (x <= target_p.x + 8*OFFSET))    //Condition ball hit target
     {
         control_writer();
         shared_m.score += 1;                //Update score
         shared_m.pos[index].x = NO_POS;     //Delete ball
         shared_m.pos[index].y = NO_POS;
         release_writer();
-       
+
+        ret = 1;
+    }
+    return ret;
+}
+
+/* Check Wall collision */
+int check_wall(int x, int y, int index)
+{
+    int ret = 0;
+    struct pos_t wall_p;
+    control_reader();
+    wall_p.x = shared_m.pos_wall.x;     //Get target position. Protected!
+    wall_p.y = shared_m.pos_wall.y;
+    release_reader();
+    if((x >= wall_p.x - RADIUS) && (x <= wall_p.x + WALL_W) && (y >= wall_p.y))
+    {
+        control_writer();
+        shared_m.pos[index].x = NO_POS;     //Delete ball
+        shared_m.pos[index].y = NO_POS;
+        release_writer();
         ret = 1;
     }
     return ret;
@@ -49,7 +71,8 @@ ptask shot()
     int i, j = 0;               // tmp var
     int end = 0;                    // If == -1, the shot task must end
     int bord, targ, wall = 0;
-
+    int score = 0;                  // Retrieve score
+    struct pos_t wall_p;               //wall position to update
     index = ptask_get_index();
     printf("Sono la pallina %d!\n", index);
 
@@ -84,11 +107,23 @@ ptask shot()
         // printf("Y:%d\n",local_t.y[i]);
         bord = check_border(local_t.x[i], local_t.y[i], index);
         targ = check_target(local_t.x[i], local_t.y[i], index);
-
+        wall = check_wall(local_t.x[i], local_t.y[i], index);
         end = bord + wall + targ;
         
         i += 1;
-        
+        if(targ == 1)
+        {
+            control_reader();
+            score = shared_m.score;
+            wall_p.x = shared_m.pos_wall.x;
+            wall_p.y = shared_m.pos_wall.y;
+            release_reader();
+
+            control_writer();
+            shared_m.pos_wall.y = wall_p.y - score * OFFSET - (rand()%10);
+            shared_m.pos_wall.x = wall_p.x - score * OFFSET - (rand()%60);
+            release_writer();
+        }
         ptask_wait_for_period();
     }
     // printf("out i: %d\n", local_t.y[i]);

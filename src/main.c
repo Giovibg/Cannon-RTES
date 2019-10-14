@@ -90,7 +90,7 @@ int get_CannonPwr()
     shot_pwr = shared_m.shot_pwr;
     release_reader();
 
-    return 12*shot_pwr;
+    return 10*shot_pwr;
 }
 
 /* Create the cannon task and set the shared memory variable to the correct value */

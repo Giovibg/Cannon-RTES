@@ -1,12 +1,6 @@
 #include "ptask.h"
 #include "manager.h"
-
-/* Let the */
-void my_sleep(float s)
-{
-
-}
-
+#include "target.h"
 /* Target Task */
 ptask target()
 {
@@ -14,9 +8,12 @@ ptask target()
     struct pos_t pos_target;
     pos_target.x = TARGET_X;
     pos_target.y = TARGET_Y;
-
+    int wall_x;                 //X position Wall
     while(1)
     {
+        control_reader();
+        wall_x = shared_m.pos_wall.x;
+        release_reader();
         if(right) 
         {
             pos_target.x += 2;
@@ -31,11 +28,10 @@ ptask target()
             right = 0;
         }
 
-        if(pos_target.x == MAX_TARGET_L)
+        if(pos_target.x <= wall_x + OFFSET_WALL)
         {
             right = 1;
         }
-
         control_writer();
         shared_m.pos_target.x = pos_target.x;
         shared_m.pos_target.y = pos_target.y;

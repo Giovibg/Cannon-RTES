@@ -7,13 +7,16 @@
 //-------------------------------------------------------------
 // GLOBAL CONSTANTS
 //-------------------------------------------------------------
+
+// background color
 #define BKG 0
-// background color
+
 #define WHITE 15
-// background color
-#define MSG_L 50  
 // string lenght
+#define MSG_L 50  
+
 #define RED 12
+
 //-------------------------------------------------------------
 
 /* Change rate and score value */
@@ -25,28 +28,31 @@ ptask game_play();
 /* Draws game interface and screen */
 void play_screen_init();
 
-// Reset postrail_t trail
+/* Reset postrail_t trail */
 void reset_trail();
 
 /* Print trajectory preview */
 void update_trajectory(int color);
 
-// Retrieve new trajectory
+/* Retrieve new trajectory */
 void retrieve_trajectory();
 
 /* Draws menu interface */
 void menu_screen_init();
 
-// Draws cannon power bar's line 
+/* Draws cannon power bar's line */
 void draw_Pwrline();
 
-// Draw playground borders
+/* Draw playground borders */
 void draw_Borders();
+
+/* Draw Wall */
+void draw_wall(int score);
 
 /* Draw playground borders */
 void draw_PwrBar();
 
-// Draw a new circlefill rapresenting a shot
+/* Draw a new circlefill rapresenting a shot */
 void draw_Shots(struct pos_t posi, int color);
 
 /* Initialize display and keyboard interactions */

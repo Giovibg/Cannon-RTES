@@ -6,56 +6,61 @@
 //-------------------------------------------------------------
 // GLOBAL CONSTANTS
 //-------------------------------------------------------------
-#define XWIN 1060
+
 // window x resolution
-#define YWIN 680
+#define XWIN 1060
 // window y resolution
-#define PAD 60
+#define YWIN 680
 // padding for game's statistics
-#define RADIUS 5
+#define PAD 60
 // Shot ball radius
-#define OFFSET 10
+#define RADIUS 5
 // Offset bitmap target
-#define NO_POS -1
+#define OFFSET 10
 // Alias no position ball
-#define PERIOD_G 25            // BISOGNA METTERE UN VALORE OTTIMO NON A CASO  
-// Period Graphic task
+#define NO_POS -1
+// Period Graphic task, screen update rate
+#define PERIOD_G 25              
+// Priority Graphic task
 #define PRIO_G 8
-// Priority Graphic task
-#define PERIOD_B 20
 // Period Shot task
-#define PRIO_B 9
+#define PERIOD_B 20
 // Priority Graphic task
-#define PERIOD_T 500
+#define PRIO_B 9
 // Period Target task
-#define PRIO_T 9
-// Period manager task
-#define PERIOD_M 400
-// Priority manager task
-#define PRIO_M 10
+#define PERIOD_T 20
 // Priority Target task
-#define MAX_SHOTS 90
+#define PRIO_T 9
+// Period Power Bar task
+#define PERIOD_M 400
+// Priority Power Bar task
+#define PRIO_M 10
 // Number of max possible shots
-#define MAX_PWR 10
+#define MAX_SHOTS 90
 // Max power of the shot
-#define G 9.8
+#define MAX_PWR 10
 // Gravity acceleration
+#define G 9.8    
+// Cannon X position
 #define CANNON_X XWIN - PAD - 9*OFFSET
-// Cannon X position
+// Cannon Y position
 #define CANNON_Y YWIN - PAD - 10*OFFSET
-// Cannon X position
-#define TARGET_X XWIN - PAD - 24*OFFSET
-// Target X start position
-#define TARGET_Y YWIN - PAD - 10*OFFSET
-// Target Y start position
+// Cannon Max degree
 #define MAX_DEG 25
-// Max degree of the cannon
+// Cannon Min degree
 #define MIN_DEG 0
-// Max degree of the cannon
-#define MAX_TARGET_R TARGET_X + 60
+// Target X start position
+#define TARGET_X XWIN - PAD - 24*OFFSET
+// Target Y start position
+#define TARGET_Y YWIN - PAD - 10*OFFSET
 // Max right position of the target
-#define MAX_TARGET_L TARGET_X - 60
+#define MAX_TARGET_R TARGET_X + 60
 // Max left position of the target
+#define MAX_TARGET_L TARGET_X - 60
+// Wall width
+#define WALL_W 8
+// Offset target respect wall
+#define OFFSET_WALL 40
 
 //-------------------------------------------------------------
 // STRUCTURE DEFINITIONS
@@ -83,8 +88,8 @@ struct mem_t{
     int update_traj;
     struct pos_t pos[MAX_SHOTS];    // Positions of all the Shots
     struct pos_t pos_target;        // Position of target
-
-    struct postrail_t trajectory;  // Trajectory points
+    struct pos_t pos_wall;          // Wall position 
+    struct postrail_t trajectory;   // Trajectory points
     
     
     int nball;                      // Number of Reader task
@@ -119,7 +124,7 @@ void control_reader();
 void release_reader();
 
 // Initialize task params 
-tpars init_param(int PRIO, int PERIOD);
+tpars init_param(int prio, int period);
 
 // Create a new Shot task
 int shot_create();

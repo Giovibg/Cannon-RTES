@@ -3,6 +3,8 @@
 /* Shot task */
 ptask shot();
 /*Check shot out of borders */
-void check_border(struct pos_t *pos);
+int check_border(int x, int y, int index);
 /* Check ball hit target */
-void check_target(struct pos_t *pos);
+int check_target(int x, int y, int index);
+/* Check wall collision */
+int check_wall(int x, int y, int index);

@@ -29,7 +29,8 @@ void mem_t_init(struct mem_t *mem)
     mem->nBball = 0;
     mem->nW = 0;
     mem->nBw = 0;
-
+    mem->pos_wall.x = (XWIN / 2) - WALL_W/2;
+    mem->pos_wall.y = (3*YWIN - 2 * PAD) / 4;
     for(i = 0; i < MAX_SHOTS; i++)
     {
         mem->pos[i].x = NO_POS;
@@ -129,12 +130,12 @@ void release_reader()
 }
 
 /* Initialize task params */
-tpars init_param(int PRIO, int PERIOD)
+tpars init_param(int prio, int period)
 {
     tpars params = TASK_SPEC_DFL;
-    params.period = tspec_from(PERIOD, MILLI);
-    params.rdline = tspec_from(PERIOD, MILLI);
-    params.priority = PRIO;
+    params.period = tspec_from(period, MILLI);
+    params.rdline = tspec_from(period, MILLI);
+    params.priority = prio;
     params.measure_flag = 1;
     params.act_flag = NOW;
     params.arg = NULL;

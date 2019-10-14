@@ -91,6 +91,21 @@ void draw_Borders()
     line(screen, PAD, YWIN - PAD, XWIN - PAD, YWIN - PAD, 15);
 }
 
+/* Draw Wall */
+void draw_wall(int score)
+{
+    struct pos_t local_wall;
+    
+    // Retrieve x, y position of wall and score
+    control_reader();
+    local_wall.x = shared_m.pos_wall.x;
+    local_wall.y = shared_m.pos_wall.y;
+    release_reader();
+    rectfill(screen,local_wall.x, YWIN - PAD,
+                     local_wall.x + (WALL_W),local_wall.y,WHITE);
+
+}
+
 void retrieve_trajectory()
 {
     int j = 0;
@@ -220,7 +235,7 @@ ptask game_play()
         release_reader();
 
         play_screen_init();
-
+        draw_wall(score);
         if(old_cannon_degree != cannon_degree || old_pwr != shot_pwr)
         {
             retrieve_trajectory();
