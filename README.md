@@ -65,6 +65,7 @@ Game play is based on keyboard interactions. To play, in order you should:
 Pressing `T` button, a shot trajectory preview, calculated by intensity and   
 cannon degree choosen, will be shown.
 
+
 ## Code Organization
 
 Code has been organized in different source files:

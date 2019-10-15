@@ -72,8 +72,8 @@ struct pos_t{
 };
 
 struct postrail_t{
-    int x[XWIN];
-    int y[YWIN];
+    int x[XWIN * YWIN];
+    int y[YWIN * XWIN];
 };
 
 // Shared memory structure definitios

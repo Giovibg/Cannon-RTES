@@ -24,15 +24,45 @@ void import_bitmap()
 void draw_Pwrline(int shot_pwr)
 {
     int j;
-
+    int color;
     for(j = 1; j <= shot_pwr; j++)
     {
-        line(screen,  PAD + 1*OFFSET, YWIN - PAD - j*OFFSET, PAD + 3*OFFSET, YWIN - PAD - j*OFFSET, 15);
+        if(j % MAX_PWR < 3 && 1 <= j % MAX_PWR)
+        {
+            color = 2;      //Dark Green
+        }
+        if(3 <= j % MAX_PWR && j%MAX_PWR <= 6)
+        {
+            color = 10;     //Light Green
+        }
+        if(j % MAX_PWR > 6 && j % MAX_PWR <= 8)
+        {
+            color = 14;     //Yellow
+        }
+        if(j % MAX_PWR > 8 || j % MAX_PWR == 0)
+        {
+            color = 12;     //Red
+        }
+        rectfill(screen,PAD + OFFSET + 1, (YWIN - PAD - (j - 1) * OFFSET) - 1,
+                 PAD + 3 * OFFSET - 1, YWIN - PAD - j* OFFSET + 2, color);
+        //line(screen,  PAD + OFFSET, YWIN - PAD - j*OFFSET, PAD + 3*OFFSET, YWIN - PAD - j*OFFSET, 0);
+       
     }
-    for(;j <= 10; j++)
+    /*for(;j <= 10; j++)
     {
-        line(screen,  PAD + 1*OFFSET, YWIN - PAD - j*OFFSET, PAD + 3*OFFSET, YWIN - PAD - j*OFFSET, 0);
-    }
+       // line(screen,  PAD + OFFSET, YWIN - PAD - j*OFFSET, PAD + 3*OFFSET, YWIN - PAD - j*OFFSET, 0);
+    }*/
+}
+
+/* Draw Power Box */
+void draw_PwrBar()
+{
+    line(screen,  PAD + 3*OFFSET, YWIN - PAD, 
+        PAD + 3*OFFSET, YWIN - PAD - MAX_PWR * OFFSET, 15);
+    line(screen,  PAD + OFFSET, YWIN - PAD,
+         PAD + 1*OFFSET, YWIN - PAD - MAX_PWR * OFFSET, 15);
+    line(screen,  PAD + OFFSET, YWIN - PAD - MAX_PWR*OFFSET - 1,
+         PAD + 3*OFFSET, YWIN - PAD - MAX_PWR * OFFSET - 1, 15);
 }
 
 /* Change Target bitmap */
@@ -75,14 +105,6 @@ void draw_Shots(struct pos_t pos, int color)
 }
 
 /* Draw playground borders */
-void draw_PwrBar()
-{
-    line(screen,  PAD + 3*OFFSET, YWIN - PAD - OFFSET, PAD + 3*OFFSET, YWIN - PAD - 13*OFFSET, 15);
-    line(screen,  PAD + 1*OFFSET, YWIN - PAD - OFFSET, PAD + 1*OFFSET, YWIN - PAD - 13*OFFSET, 15);
-    line(screen,  PAD + 1*OFFSET, YWIN - PAD - 13*OFFSET, PAD + 3*OFFSET, YWIN - PAD - 13*OFFSET, 15);
-}
-
-/* Draw playground borders */
 void draw_Borders()
 {  
     line(screen, XWIN - PAD, PAD, PAD, PAD, 15);
@@ -114,7 +136,7 @@ void retrieve_trajectory()
     trail.x[0] = shared_m.trajectory.x[0];
     trail.y[0] = shared_m.trajectory.y[0];
     release_reader();
-    while(trail.y[j] != NO_POS) // STA ROBA NON È BELLA, XK XWIN > YWIN,
+    while(trail.y[j] != NO_POS) 
     {                           // SHAREDM.TRAJECTORY.X[XWIN] È UN VALORE,
         j += 1;                 // SHAREDM.TRAJECTORY.Y[XWIN] È FUORI ARRAY
         control_reader();
@@ -245,7 +267,7 @@ ptask game_play()
 
         if(update_traj)
         {
-           update_trajectory(RED);
+           update_trajectory(10);
         }
 
         change_rate_score(shots, score);

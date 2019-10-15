@@ -179,7 +179,7 @@ void trajectory_cannon(float speedx, float speedy)
     int i = 0;
     old_x = x =  PAD + 80 + 5*OFFSET;
     old_y = y = PAD + 5*OFFSET;
-    float dt = PERIOD_G * 0.0042; // TScale based on graphic period
+    float dt = PERIOD_G * 0.0035; // TScale based on graphic period
     
     control_writer();
     reset_shared_trail();
@@ -198,8 +198,8 @@ void trajectory_cannon(float speedx, float speedy)
         shared_m.trajectory.y[i] = (int) (YWIN - y);
         release_writer();
         i += 1;
-        // printf("valore i:%d\n",i);
     }
+    
 }
 
 /* Manager for the game */
