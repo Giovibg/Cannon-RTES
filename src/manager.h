@@ -92,6 +92,10 @@ struct mem_t{
     int end_charge;                 // Var to segnalate the end of the cannon charge process
     int cannon_degree;              // Cannon rotation
     int update_traj;
+    int graphic_d;                  // Graphic deadline miss
+    int target_d;                   // Target deadline miss
+    int ball_d;                     // Ball deadline miss
+    int power_d;                    // Power deadline miss
     struct pos_t pos[MAX_SHOTS];    // Positions of all the Shots
     struct pos_t pos_target;        // Position of target
     struct pos_t pos_wall;          // Wall position 

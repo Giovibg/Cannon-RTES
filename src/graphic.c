@@ -105,11 +105,42 @@ void change_rate_score(int new_shots, int new_score)
     
     // Update rate graphic
     sprintf(r, "Rate: %d/%d", new_score, new_shots);
-    textout_ex(screen, font, r, XWIN - PAD - 70, PAD/2, 15, 0);
+    textout_ex(screen, font, r, XWIN - PAD - 70, PAD/2, WHITE, BKG);
 
     // Update score graphic
     sprintf(s, "Score: %d", new_score);
-    textout_ex(screen, font, s, PAD, PAD/2, 15, 0);
+    textout_ex(screen, font, s, PAD, PAD/2, WHITE, BKG);
+}
+
+/* Update deadline miss */
+void update_deadline()
+{
+    int graphic;
+    int ball;
+    int power;
+    int target;
+    control_reader();       //Retrieve deadline counter. Protected!
+    graphic = shared_m.graphic_d;
+    ball = shared_m.ball_d;
+    power = shared_m.power_d;
+    target = shared_m.target_d;
+    release_reader();
+    // strings to print
+    char g[MSG_L];
+    char b[MSG_L];
+    char p[MSG_L];
+    char t[MSG_L];
+
+    //Update deadlines
+    sprintf(g, "Graphic deadline miss: %d",graphic);
+    textout_ex(screen, font, g, PAD, YWIN - PAD/2, WHITE, BKG);
+    sprintf(b, "Ball deadline miss: %d",ball);
+    textout_ex(screen, font, b, PAD + 250 + OFFSET, YWIN - PAD/2, WHITE, BKG);
+    sprintf(p, "Power bar deadline miss: %d",ball);
+    textout_ex(screen, font, p, PAD + (2 * 250) + OFFSET, YWIN - PAD/2, WHITE, BKG);
+    sprintf(t, "Target deadline miss: %d",ball);
+    textout_ex(screen, font, t, PAD + (3 * 250) + OFFSET, YWIN - PAD/2, WHITE, BKG);
+
 }
 
 /* Draw a new Shot ball */
@@ -268,18 +299,18 @@ ptask game_play()
         pos[i].x = NO_POS;
         pos[i].y = NO_POS;
     }
-
     import_bitmap();
 
     while(1)
     {  
         i = 0;  
-
+        /* Retrieve necessary data to update graphic */
         retrieve_sharedm(&shots, &score, &end_charge, &shot_pwr, &cannon_degree, &target_x, &update_traj);
 
         play_screen_init();
+        update_deadline();
         draw_wall(target_x);
-
+        /* Retrive new trajectory when cannon angle changed */
         if(old_cannon_degree != cannon_degree || old_pwr != shot_pwr)
         {
             retrieve_trajectory();
@@ -298,7 +329,7 @@ ptask game_play()
 
         if(update_traj)
         {
-           update_trajectory(10);
+           update_trajectory(GREEN);
         }
 
         change_rate_score(shots, score);
@@ -321,6 +352,13 @@ ptask game_play()
             {
                 draw_Shots(pos[i], WHITE);
             }
+        }
+        /* Check Deadline miss */
+        if(ptask_deadline_miss())
+        {
+            control_writer();
+            shared_m.graphic_d += 1;
+            release_writer();
         }
         ptask_wait_for_period();
     }
