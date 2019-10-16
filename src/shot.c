@@ -42,7 +42,6 @@ int check_target(int x, int y, int index)
     }
     return ret;
 }
-
 /* Check Wall collision */
 int check_wall(int x, int y, int index)
 {
@@ -58,6 +57,7 @@ int check_wall(int x, int y, int index)
         shared_m.pos[index].x = NO_POS;     //Delete ball
         shared_m.pos[index].y = NO_POS;
         release_writer();
+
         ret = 1;
     }
     return ret;
@@ -131,6 +131,13 @@ ptask shot()
             control_writer();
             shared_m.pos_wall.y = wall_p.y - score * OFFSET - (rand()%10);
             shared_m.pos_wall.x = wall_p.x - x_dir * score * OFFSET - x_dir * (rand()%60 + 1);
+            release_writer();
+        }
+        /* Check Deadline miss */
+        if(ptask_deadline_miss())
+        {
+            control_writer();
+            shared_m.ball_d += 1;
             release_writer();
         }
         ptask_wait_for_period();

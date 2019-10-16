@@ -28,6 +28,7 @@ void mem_t_init(struct mem_t *mem)
     mem->nBw = 0;
     mem->pos_wall.x = (XWIN / 2) - WALL_W/2;
     mem->pos_wall.y = (3*YWIN - 2 * PAD) / 4;
+    mem->graphic_d = mem->power_d = mem ->ball_d = mem-> target_d = 0;
     for(i = 0; i < MAX_SHOTS; i++)
     {
         mem->pos[i].x = NO_POS;
@@ -247,7 +248,13 @@ ptask charge_cannon()
                 up = 1;
             }
         }  
-
+        /* Check Deadline miss */
+        if(ptask_deadline_miss())
+        {
+            control_writer();
+            shared_m.power_d += 1;
+            release_writer();
+        }
         ptask_wait_for_period();
 
         control_reader();

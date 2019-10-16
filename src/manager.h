@@ -90,6 +90,10 @@ struct mem_t{
     int end_charge;                 // Check if end cannon charge process
     int cannon_degree;              // Cannon rotation
     int update_traj;                // Check if trajectory has to be updated
+    int graphic_d;                  // Graphic deadline miss
+    int target_d;                   // Target deadline
+    int ball_d;                     // Ball deadline miss
+    int power_d;                    // PowerBar deadline miss
 
     struct pos_t pos[MAX_SHOTS];    // Positions of all the Shots
     struct pos_t pos_target;        // Position of target

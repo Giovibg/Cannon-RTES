@@ -36,7 +36,13 @@ ptask target()
         shared_m.pos_target.x = pos_target.x;
         shared_m.pos_target.y = pos_target.y;
         release_writer();
-
+        /* Check Deadline miss */
+        if(ptask_deadline_miss())
+        {
+            control_writer();
+            shared_m.target_d += 1;
+            release_writer();
+        }
         ptask_wait_for_period();
     }
 }
