@@ -21,14 +21,7 @@ void set_UpdateTrajectory(int bool)
     release_writer();
 }
 
-/* Set if trajectory should be updated. Protected! */
-void update_CannonDegree(int cannon_degree)
-{
-    control_writer();
-    shared_m.cannon_degree = cannon_degree;
-    release_writer();
-}
-
+/* Calculate speed on axis X and Y and compute the trajectory */
 void speedxy(int shot_pwr)
 {
     float speed_x = 0;              // Horizontal speed
@@ -45,10 +38,18 @@ void speedxy(int shot_pwr)
     trajectory_cannon(speed_x,speed_y);
 }
 
-/* Phase where the user can set the Cannon angle */
-int set_CannonAngle(int shot_pwr)
+/* Set if trajectory should be updated. Protected! */
+void update_CannonDegree(int cannon_degree)
 {
-    int bool_manager = 3;           // Var to check if change to next phase
+    control_writer();
+    shared_m.cannon_degree = cannon_degree;
+    release_writer();
+}
+
+/* Phase where the user can set the Cannon Degree */
+int set_CannonDegree(int shot_pwr)
+{
+    int bool_manager = 3;   // Var to check if change to next phase
     
     if(keypressed()) 
     {    
@@ -82,6 +83,9 @@ int get_CannonPwr()
 {
     int shot_pwr;
     int ret;
+    int scaler[10] = {22, 22, 17, 17, 15,   // Scaler makes speed omogeneous
+                        13, 13, 12, 11, 10};    
+
     control_writer();
     shared_m.end_charge = -1;
     release_writer();
@@ -90,12 +94,10 @@ int get_CannonPwr()
     shot_pwr = shared_m.shot_pwr;
     release_reader();
 
-    //Scaler makes speed omogeneous
-    int scaler[10] = {22, 22, 17, 17, 15, 13, 13, 12, 11, 10};
     ret = scaler[shot_pwr - 1] * shot_pwr;
 }
 
-/* Create the cannon task and set the shared memory variable to the correct value */
+/* Create the cannon task and set shared memory variable to correct value */
 int set_CannonPwr()
 {
     printf("Ciao\n");
@@ -106,7 +108,7 @@ int set_CannonPwr()
     shared_m.end_charge = 0;
     release_writer();
 
-    // Create cannon_charge task
+    /* Create cannon_charge task */
     params = init_param(PRIO_M, PERIOD_M);
     ptask_create_param(charge_cannon, &params);
 
@@ -116,15 +118,14 @@ int set_CannonPwr()
 int main(void)
 {  
     int bool_manager = 0;               // Check manager task activated
-    int n_shots = 0;        
+    int n_shots = 0;                    // Number of total shot
     int shot_pwr = 0;                   // Power of the shot
-    int last_degree = 0;                    // Degree of the previw  
+    int last_degree = 0;                // Degree of the previw  
 
     gui_init();
     /* Ptask initialization */
     ptask_init(SCHED_FIFO, GLOBAL, NO_PROTOCOL);  
-    do
-    {
+    do{
         if (keypressed())
         {   
             k = readkey() >> 8;
@@ -145,12 +146,11 @@ int main(void)
                 set_UpdateTrajectory(1);
                 speedxy(shot_pwr);
             }
-            /* Set the cannon angle */
+            /* Set the cannon Degree */
             while(bool_manager == 3)
             { 
-                bool_manager = set_CannonAngle(shot_pwr);
+                bool_manager = set_CannonDegree(shot_pwr);
             }
-
             /* Create a new Shot  */
             if(n_shots < MAX_SHOTS && bool_manager == 4)
             {   
