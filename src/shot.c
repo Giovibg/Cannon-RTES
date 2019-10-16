@@ -72,6 +72,7 @@ ptask shot()
     int end = 0;                    // If == -1, the shot task must end
     int bord, targ, wall = 0;
     int score = 0;                  // Retrieve score
+    int x_dir = 0;
     struct pos_t wall_p;               //wall position to update
     index = ptask_get_index();
     printf("Sono la pallina %d!\n", index);
@@ -80,7 +81,7 @@ ptask shot()
     local_t.x[0] = shared_m.trajectory.x[0];
     local_t.y[0] = shared_m.trajectory.y[0];
     release_reader();
-    while(local_t.y[j] != NO_POS)      //Import trajectory to local
+    while(local_t.y[j] != NO_POS && local_t.x[j] != NO_POS && j < SEMICFR)      //Import trajectory to local
     {
         j += 1;
         control_reader();
@@ -88,8 +89,7 @@ ptask shot()
         local_t.y[j] = shared_m.trajectory.y[j];
         release_reader();
         // printf("Pallina traiettoria X:%f Y:%f\n",local_t[j].x, local_t[j].y);    
-    }
-    
+    }  
 
     control_writer();
     shared_m.shots += 1;
@@ -119,9 +119,18 @@ ptask shot()
             wall_p.y = shared_m.pos_wall.y;
             release_reader();
 
+            if (((wall_p.x % wall_p.y) % 2) == 0)
+            {
+                x_dir = 1;
+            }
+            else
+            {
+                x_dir = -1;
+            }
+            
             control_writer();
             shared_m.pos_wall.y = wall_p.y - score * OFFSET - (rand()%10);
-            shared_m.pos_wall.x = wall_p.x - score * OFFSET - (rand()%60);
+            shared_m.pos_wall.x = wall_p.x - x_dir * score * OFFSET - x_dir * (rand()%60 + 1);
             release_writer();
         }
         ptask_wait_for_period();

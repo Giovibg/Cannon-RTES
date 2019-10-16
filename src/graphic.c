@@ -20,12 +20,12 @@ void import_bitmap()
     draw_sprite(screen, cannon,PAD + 4*OFFSET,YWIN - PAD - 5*OFFSET);
 }
 
-/* Draws cannon power bar's line */
-void draw_Pwrline(int shot_pwr)
+void charge_phase(int shot_pwr, int j_init)
 {
     int j;
     int color;
-    for(j = 1; j <= shot_pwr; j++)
+
+    for(j = j_init; j <= shot_pwr; j++)
     {
         if(j % MAX_PWR < 3 && 1 <= j % MAX_PWR)
         {
@@ -45,9 +45,23 @@ void draw_Pwrline(int shot_pwr)
         }
         rectfill(screen,PAD + OFFSET + 1, (YWIN - PAD - (j - 1) * OFFSET) - 1,
                  PAD + 3 * OFFSET - 1, YWIN - PAD - j* OFFSET + 2, color);
-        //line(screen,  PAD + OFFSET, YWIN - PAD - j*OFFSET, PAD + 3*OFFSET, YWIN - PAD - j*OFFSET, 0);
-       
+        //line(screen,  PAD + OFFSET, YWIN - PAD - j*OFFSET, PAD + 3*OFFSET, YWIN - PAD - j*OFFSET, 0);  
     }
+}
+
+/* Draws cannon power bar's line */
+void draw_Pwrline(int shot_pwr, int end_charge)
+{    
+    if (end_charge != -1)
+    {
+        charge_phase(shot_pwr, 1);
+    }
+    else
+    {
+        charge_phase(shot_pwr, shot_pwr);   
+    }
+    
+
     /*for(;j <= 10; j++)
     {
        // line(screen,  PAD + OFFSET, YWIN - PAD - j*OFFSET, PAD + 3*OFFSET, YWIN - PAD - j*OFFSET, 0);
@@ -114,7 +128,7 @@ void draw_Borders()
 }
 
 /* Draw Wall */
-void draw_wall(int score)
+void draw_wall(int target_x)
 {
     struct pos_t local_wall;
     
@@ -123,9 +137,11 @@ void draw_wall(int score)
     local_wall.x = shared_m.pos_wall.x;
     local_wall.y = shared_m.pos_wall.y;
     release_reader();
-    rectfill(screen,local_wall.x, YWIN - PAD,
-                     local_wall.x + (WALL_W),local_wall.y,WHITE);
-
+    if(target_x > local_wall.x)
+    {
+        rectfill(screen,local_wall.x, YWIN - PAD,
+                 local_wall.x + (WALL_W),local_wall.y,WHITE);
+    }
 }
 
 void retrieve_trajectory()
@@ -136,9 +152,10 @@ void retrieve_trajectory()
     trail.x[0] = shared_m.trajectory.x[0];
     trail.y[0] = shared_m.trajectory.y[0];
     release_reader();
-    while(trail.y[j] != NO_POS) 
-    {                           // SHAREDM.TRAJECTORY.X[XWIN] È UN VALORE,
-        j += 1;                 // SHAREDM.TRAJECTORY.Y[XWIN] È FUORI ARRAY
+    while(trail.y[j] != NO_POS && trail.x[j] != NO_POS && j < SEMICFR) 
+    {          
+        j += 1;
+        // printf("J, X, Y: %d, %d, %d\n", j, trail.x[j], trail.y[j]);
         control_reader();
         trail.x[j] = shared_m.trajectory.x[j];
         trail.y[j] = shared_m.trajectory.y[j];
@@ -149,9 +166,8 @@ void retrieve_trajectory()
 void update_trajectory(int color)
 {
     int j = 0;
-    while(trail.y[j] != NO_POS) // STA ROBA NON È BELLA, XK XWIN > YWIN,
-    {                           // SHAREDM.TRAJECTORY.X[XWIN] È UN VALORE,
-                                // SHAREDM.TRAJECTORY.Y[XWIN] È FUORI ARRAY
+    while(trail.y[j] != NO_POS && trail.x[j] != NO_POS && j < SEMICFR)
+    {          
         putpixel(screen, trail.x[j], trail.y[j], color);
         j += 1;   
     }
@@ -219,6 +235,21 @@ void gui_init()
     menu_screen_init();
 }
 
+// Retrieve necessary data for updating graphics 
+// from Shared Memory. Protected!
+void retrieve_sharedm(int *shots, int *score, int *end_charge, int *shot_pwr, int *cannon_degree, int *target_x, int *update_traj)
+{
+    control_reader();
+    *shots = shared_m.shots; 
+    *score = shared_m.score;
+    *end_charge = shared_m.end_charge;
+    *shot_pwr = shared_m.shot_pwr;
+    *cannon_degree = shared_m.cannon_degree;
+    *target_x = shared_m.pos_target.x;
+    *update_traj = shared_m.update_traj;
+    release_reader();
+}
+
 /* Task that update Game_Screen during play */
 ptask game_play()
 {
@@ -244,25 +275,25 @@ ptask game_play()
     {  
         i = 0;  
 
-        // Retrieve necessary data for updating graphics 
-        // from Shared Memory. Protected!
-        control_reader();
-        shots = shared_m.shots; 
-        score = shared_m.score;
-        end_charge = shared_m.end_charge;
-        shot_pwr = shared_m.shot_pwr;
-        cannon_degree = shared_m.cannon_degree;
-        target_x = shared_m.pos_target.x;
-        update_traj = shared_m.update_traj;
-        release_reader();
+        retrieve_sharedm(&shots, &score, &end_charge, &shot_pwr, &cannon_degree, &target_x, &update_traj);
 
         play_screen_init();
-        draw_wall(score);
+        draw_wall(target_x);
+
         if(old_cannon_degree != cannon_degree || old_pwr != shot_pwr)
         {
             retrieve_trajectory();
-            old_cannon_degree = cannon_degree;
-            old_pwr = shot_pwr;
+            if (cannon_degree != -180) // Valore impossibile per aggiornare la traiettoria appena inserisco la potenza
+            {
+                old_cannon_degree = cannon_degree;
+                old_pwr = shot_pwr;
+            }
+            else
+            {
+                cannon_degree = old_cannon_degree;
+                shared_m.cannon_degree = old_cannon_degree;
+            }
+            
         }
 
         if(update_traj)
@@ -273,11 +304,8 @@ ptask game_play()
         change_rate_score(shots, score);
         change_cannon(cannon_degree);
         change_target(target_x, TARGET_Y);
-
-        if (end_charge != -1)
-        {
-            draw_Pwrline(shot_pwr);
-        }
+        
+        draw_Pwrline(shot_pwr, end_charge);
 
         for(i = 0; i < MAX_SHOTS; i++)
         {

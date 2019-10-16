@@ -37,11 +37,11 @@ void mem_t_init(struct mem_t *mem)
         mem->pos[i].y = NO_POS;
     }
     
-    for(int i = 0; i < XWIN; i++)
+    for(int i = 0; i < SEMICFR; i++)
     {
         mem->trajectory.x[i] = NO_POS; 
     }
-    for(int j=0; j < YWIN; j++)
+    for(int j=0; j < SEMICFR; j++)
     {
         mem->trajectory.y[j] = NO_POS;
     }
@@ -179,27 +179,28 @@ void trajectory_cannon(float speedx, float speedy)
     int i = 0;
     old_x = x =  PAD + 80 + 5*OFFSET;
     old_y = y = PAD + 5*OFFSET;
-    float dt = PERIOD_G * 0.0035; // TScale based on graphic period
+    float dt = PERIOD_G * 0.0045; // TScale based on graphic period
     
     control_writer();
     reset_shared_trail();
     release_writer();
 
-    while((x <= XWIN) && (YWIN - y < YWIN - PAD))
+    // while((x <= XWIN) && (YWIN - y < YWIN - PAD)) // numero di punti calcolato troppo grande
+    while((x <= XWIN) && (YWIN - y < YWIN - PAD) && i <= SEMICFR)
     {
         old_x = x;
         old_y = y;
         x = old_x + (speedx * dt);
         y = old_y + (speedy * dt) - (0.5 * G * dt * dt);
         speedy =  speedy - (G * dt);
-        // printf("X: %f\n Y: %f\n",x,y);
+        //printf("I: %d\n", i);
+        //printf("X: %f\n Y: %f\n",x,YWIN - y);
         control_writer();
         shared_m.trajectory.x[i] = (int) x;
         shared_m.trajectory.y[i] = (int) (YWIN - y);
         release_writer();
         i += 1;
     }
-    
 }
 
 /* Manager for the game */
@@ -235,9 +236,8 @@ ptask charge_cannon()
     int up = 1;                 // Var that says if the pwr should grow or decrease
     int shot_pwr = 0;
     int end_charge = 0;
-    int pwr;
 
-    do
+    while(end_charge != -1)
     {
         if(up)
         {
@@ -262,15 +262,13 @@ ptask charge_cannon()
             }
         }  
 
-        control_reader();
-        end_charge = shared_m.end_charge;
-        pwr = shared_m.shot_pwr;
-        release_reader();
-
         ptask_wait_for_period();
 
-    } while(end_charge != -1);
+        control_reader();
+        end_charge = shared_m.end_charge;
+        release_reader();
 
+    }
     return;
 }
 

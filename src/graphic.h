@@ -22,6 +22,10 @@
 /* Change rate and score value */
 void change_rate_score(int new_shots, int new_score);
 
+// Retrieve necessary data for updating graphics 
+// from Shared Memory. Protected!
+void retrieve_sharedm(int *shots, int*score, int *end_charge, int *shot_pwr, int *cannon_degree, int *target_x, int *update_traj);
+
 /* Task that update Game_Screen during play */
 ptask game_play();
 
@@ -47,7 +51,7 @@ void draw_Pwrline();
 void draw_Borders();
 
 /* Draw Wall */
-void draw_wall(int score);
+void draw_wall(int tagret_x);
 
 /* Draw playground borders */
 void draw_PwrBar();

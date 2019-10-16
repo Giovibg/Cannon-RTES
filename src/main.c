@@ -17,6 +17,7 @@ void set_UpdateTrajectory(int bool)
 {
     control_writer();
     shared_m.update_traj = bool;
+    shared_m.cannon_degree = -180;
     release_writer();
 }
 
@@ -34,7 +35,7 @@ void speedxy(int shot_pwr)
     float speed_y = 0;              // Vertical speed
     float cannon_rad;               // Degree of the cannon in radiant
 
-    cannon_rad = (cannon_degree * 5 * PIGRECO) / 180;
+    cannon_rad = (cannon_degree * 3 * PIGRECO) / 180;
     // printf("Radiant:%f\n",cannon_rad);
     speed_x = shot_pwr * cos(cannon_rad);
     // printf("Horizontal v: %f\n",speed_x);
@@ -73,7 +74,6 @@ int set_CannonAngle(int shot_pwr)
 
         speedxy(shot_pwr);
     }
-
     return bool_manager;
 }
 
@@ -90,7 +90,34 @@ int get_CannonPwr()
     shot_pwr = shared_m.shot_pwr;
     release_reader();
 
-    return 10*shot_pwr;
+    if (shot_pwr < 3)
+    {
+        return 22*shot_pwr;
+    }    
+    else if (shot_pwr >= 3 && shot_pwr < 5)
+    {
+        return 17*shot_pwr;
+    }   
+    else if (shot_pwr >= 5 && shot_pwr < 6)
+    {
+        return 15*shot_pwr;   
+    }    
+    else if (shot_pwr >= 6 && shot_pwr <= 7)
+    {
+        return 13*shot_pwr;
+    }
+    else if (shot_pwr == 8)
+    {
+        return 12*shot_pwr;
+    }
+    else if (shot_pwr == 9)
+    {
+        return 11*shot_pwr;
+    }
+    else
+    {
+        return 10*shot_pwr + 4;
+    }
 }
 
 /* Create the cannon task and set the shared memory variable to the correct value */

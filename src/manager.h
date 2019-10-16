@@ -2,15 +2,20 @@
 #define MANAGER_H
 
 #include "ptask.h"
+#include "math.h"
 
 //-------------------------------------------------------------
 // GLOBAL CONSTANTS
 //-------------------------------------------------------------
 
+// PIGRECO
+#define PIGRECO 3.1415926535
 // window x resolution
 #define XWIN 1060
 // window y resolution
 #define YWIN 680
+// diag
+#define SEMICFR ((XWIN - 2 * PAD) * 4) / 2
 // padding for game's statistics
 #define PAD 60
 // Shot ball radius
@@ -32,7 +37,7 @@
 // Priority Target task
 #define PRIO_T 9
 // Period Power Bar task
-#define PERIOD_M 400
+#define PERIOD_M 150
 // Priority Power Bar task
 #define PRIO_M 10
 // Number of max possible shots
@@ -46,15 +51,15 @@
 // Cannon Y position
 #define CANNON_Y YWIN - PAD - 10*OFFSET
 // Cannon Max degree
-#define MAX_DEG 25
+#define MAX_DEG 35
 // Cannon Min degree
-#define MIN_DEG 0
+#define MIN_DEG -5
 // Target X start position
 #define TARGET_X XWIN - PAD - 24*OFFSET
 // Target Y start position
 #define TARGET_Y YWIN - PAD - 10*OFFSET
 // Max right position of the target
-#define MAX_TARGET_R TARGET_X + 60
+#define MAX_TARGET_R TARGET_X + 130
 // Max left position of the target
 #define MAX_TARGET_L TARGET_X - 60
 // Wall width
@@ -72,8 +77,9 @@ struct pos_t{
 };
 
 struct postrail_t{
-    int x[XWIN * YWIN];
-    int y[YWIN * XWIN];
+
+    int x[SEMICFR];
+    int y[SEMICFR];
 };
 
 // Shared memory structure definitios
