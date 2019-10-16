@@ -92,7 +92,7 @@ int get_CannonPwr()
 
     //Scaler makes speed omogeneous
     int scaler[10] = {22, 22, 17, 17, 15, 13, 13, 12, 11, 10};
-    ret = scaler[shot_pwr] * shot_pwr;
+    ret = scaler[shot_pwr - 1] * shot_pwr;
 }
 
 /* Create the cannon task and set the shared memory variable to the correct value */
