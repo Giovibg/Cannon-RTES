@@ -59,7 +59,8 @@ Game play is based on keyboard interactions. To play, in order you should:
 2. Press `ENTER` to choose power shot intensity - from 1 to 10.
 3. Press `ARROW KEY UP` or `ARROW KEY DOWN` to choose cannon degree rotation.
 4. Press `ENTER` to shot the ball following trajectory.
-5. If target will be catched by ball, wall position will be randomly changed.
+5. If target will be catched by ball, wall position will be randomly changed, 
+   height incremented.
 6. Press `ESC` to exit the game.
 
 Pressing `T` button, a shot trajectory preview, calculated by intensity and   

@@ -81,7 +81,7 @@ int set_CannonAngle(int shot_pwr)
 int get_CannonPwr()
 {
     int shot_pwr;
-
+    int ret;
     control_writer();
     shared_m.end_charge = -1;
     release_writer();
@@ -89,35 +89,9 @@ int get_CannonPwr()
     control_reader();
     shot_pwr = shared_m.shot_pwr;
     release_reader();
-
-    if (shot_pwr < 3)
-    {
-        return 22*shot_pwr;
-    }    
-    else if (shot_pwr >= 3 && shot_pwr < 5)
-    {
-        return 17*shot_pwr;
-    }   
-    else if (shot_pwr >= 5 && shot_pwr < 6)
-    {
-        return 15*shot_pwr;   
-    }    
-    else if (shot_pwr >= 6 && shot_pwr <= 7)
-    {
-        return 13*shot_pwr;
-    }
-    else if (shot_pwr == 8)
-    {
-        return 12*shot_pwr;
-    }
-    else if (shot_pwr == 9)
-    {
-        return 11*shot_pwr;
-    }
-    else
-    {
-        return 10*shot_pwr + 4;
-    }
+    int scaler[10] = {22, 22, 17, 17, 15, 13, 13, 12, 11, 10}; //Scaler makes power omogeneous
+    ret = scaler[shot_pwr -1] * shot_pwr;
+    return ret;
 }
 
 /* Create the cannon task and set the shared memory variable to the correct value */
