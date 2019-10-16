@@ -89,6 +89,7 @@ int get_CannonPwr()
     control_reader();
     shot_pwr = shared_m.shot_pwr;
     release_reader();
+
     //Scaler makes speed omogeneous
     int scaler[10] = {22, 22, 17, 17, 15, 13, 13, 12, 11, 10};
     ret = scaler[shot_pwr] * shot_pwr;
@@ -97,6 +98,8 @@ int get_CannonPwr()
 /* Create the cannon task and set the shared memory variable to the correct value */
 int set_CannonPwr()
 {
+    printf("Ciao\n");
+
     tpars params;
 
     control_writer();
