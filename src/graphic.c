@@ -314,7 +314,7 @@ ptask game_play()
         if(old_cannon_degree != cannon_degree || old_pwr != shot_pwr)
         {
             retrieve_trajectory();
-            if (cannon_degree != -180) // Valore impossibile per aggiornare la traiettoria appena inserisco la potenza
+            if (cannon_degree != -180) // Fake position to update trajectory
             {
                 old_cannon_degree = cannon_degree;
                 old_pwr = shot_pwr;
@@ -324,7 +324,6 @@ ptask game_play()
                 cannon_degree = old_cannon_degree;
                 shared_m.cannon_degree = old_cannon_degree;
             }
-            
         }
 
         if(update_traj)

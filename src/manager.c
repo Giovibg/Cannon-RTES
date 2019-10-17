@@ -193,18 +193,18 @@ void trajectory_cannon(float speedx, float speedy)
     int i = 0;
     old_x = x =  PAD + 80 + 5*OFFSET;
     old_y = y = PAD + 5*OFFSET;
-    float dt = PERIOD_G * 0.0045; // TScale based on graphic period
+    float dt = PERIOD_G * 0.0040; // TScale based on graphic period
     
     control_writer();
-    reset_shared_trail();
+    reset_shared_traij();
     release_writer();
 
-    // while((x <= XWIN) && (YWIN - y < YWIN - PAD)) // numero di punti calcolato troppo grande
     while((x <= XWIN) && (YWIN - y < YWIN - PAD) && i <= SEMICFR)
     {
         old_x = x;
         old_y = y;
         x = old_x + (speedx * dt);
+        //x +=1;
         y = old_y + (speedy * dt) - (0.5 * G * dt * dt);
         speedy =  speedy - (G * dt);
         //printf("I: %d\n", i);
@@ -213,7 +213,9 @@ void trajectory_cannon(float speedx, float speedy)
         shared_m.trajectory.x[i] = (int) x;
         shared_m.trajectory.y[i] = (int) (YWIN - y);
         release_writer();
+        printf("X: %f   Y:%f\n",x,YWIN - y);
         i += 1;
+        printf(" I value : %d\n",i);
     }
 }
 
@@ -229,9 +231,7 @@ ptask charge_cannon()
         if(up)
         {
             shot_pwr += 1;
-            control_writer();
-            shared_m.shot_pwr = shot_pwr;
-            release_writer();
+            
             if (shot_pwr == MAX_PWR)
             {
                 up = 0;
@@ -240,14 +240,15 @@ ptask charge_cannon()
         else
         {
             shot_pwr -= 1;
-            control_writer();
-            shared_m.shot_pwr = shot_pwr;
-            release_writer();
+            
             if (shot_pwr == 0)
             {
                 up = 1;
             }
         }  
+        control_writer();
+        shared_m.shot_pwr = shot_pwr;
+        release_writer();
         /* Check Deadline miss */
         if(ptask_deadline_miss())
         {

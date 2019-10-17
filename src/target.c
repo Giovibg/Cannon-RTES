@@ -27,12 +27,12 @@ ptask target()
         {
             right = 0;
         }
-
+        /* Target will move till wall position */
         if(pos_target.x <= wall_x + OFFSET_WALL)
         {
             right = 1;
         }
-        control_writer();
+        control_writer(); 
         shared_m.pos_target.x = pos_target.x;
         shared_m.pos_target.y = pos_target.y;
         release_writer();

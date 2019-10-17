@@ -62,7 +62,7 @@
 // Max left position of the target
 #define MAX_TARGET_L TARGET_X - 60
 // Wall width
-#define WALL_W 8
+#define WALL_W 15
 // Offset target respect wall
 #define OFFSET_WALL 40
 

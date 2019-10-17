@@ -126,12 +126,8 @@ int main(void)
     /* Ptask initialization */
     ptask_init(SCHED_FIFO, GLOBAL, NO_PROTOCOL);  
     do{
-<<<<<<< HEAD
         if (keypressed())
         {   
-=======
-        if (keypressed()){   
->>>>>>> d9f9e6b758ee8e43eae07bbfb07c052c0579033f
             k = readkey() >> 8;
             printf("Main k: %d\n", k);
             /* If press space, game start */
