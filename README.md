@@ -10,9 +10,9 @@ Developed by Giovanni Bagnoli and Alessio Ruggi
 
 ## Installation dependencies
 Project is based on graphic library `Allegro 4` and `ptask`.
-To install allegro under debian-distro: sudo apt‐get install liballegro4.4 liballegro4.4‐dev  
+To install allegro under debian-distro: `sudo apt‐get install liballegro4.4 liballegro4.4‐dev`  
 
-`ptask` is a Periodic Real-Time Task interface facility to easily manage tasks.
+[ptask](https://github.com/glipari/ptask) is a Periodic Real-Time Task interface facility to easily manage tasks.
 Based on pthread lib
 
 ## Compile and Run
@@ -63,9 +63,6 @@ Game play is based on keyboard interactions. To play, in order you should:
  height incremented
 6. Press `ESC` to exit the game.
 
-Pressing `T` button, a shot trajectory preview, calculated by intensity and   
-cannon degree choosen, will be shown.
-
 
 ## Code Organization
 
@@ -78,6 +75,9 @@ intensity shot bar task(`ptask charge_cannon`), trajectory calculation(`trajecto
 - Shot: Invoked after each shot to update ball position following relative trajectory.
 - Graphic: All graphic functions. Each thing printed on screen is here.
 - Target: `ptask_target` function makes target move slowly.
+
+##Graphic Tasks Interaction
+![txt](https://github.com/Giovibg/Cannon-RTES/tree/master/img/Task_Scheme.png)
 
 
 
