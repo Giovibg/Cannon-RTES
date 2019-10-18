@@ -21,13 +21,14 @@ void mem_t_init(struct mem_t *mem)
 
     mem->pos_target.x = TARGET_X;
     mem->pos_target.y = TARGET_Y;
-
-    mem->nball = 0;
-    mem->nBball = 0;
-    mem->nW = 0;
-    mem->nBw = 0;
     mem->pos_wall.x = (XWIN / 2) - WALL_W/2;
     mem->pos_wall.y = (3*YWIN - 2 * PAD) / 4;
+
+    mem->nR = 0;
+    mem->nBR = 0;
+    mem->nW = 0;
+    mem->nBw = 0;
+    
     mem->graphic_d = mem->power_d = mem ->ball_d = mem-> target_d = 0;
     for(i = 0; i < MAX_SHOTS; i++)
     {
@@ -52,7 +53,7 @@ void mem_t_init(struct mem_t *mem)
 void control_writer()
 {
     sem_wait(&shared_m.mutex);
-    if (shared_m.nball > 0 || shared_m.nW > 0)
+    if (shared_m.nR > 0 || shared_m.nW > 0)
     {
         // If someone is reading, or is writing, i'll block
         shared_m.nBw++;
@@ -68,19 +69,18 @@ void control_writer()
     sem_wait(&shared_m.s_Write);
 }
 
-
 /* Release phase of writer manager protection */
 void release_writer()
 {
     sem_wait(&shared_m.mutex);
     shared_m.nW--;
-    if (shared_m.nBball > 0)
+    if (shared_m.nBR > 0)
     {
         // If there are some blocked ball task, i'll unlock them all
-        while(shared_m.nBball > 0)
+        while(shared_m.nBR > 0)
         {
-            shared_m.nBball--;
-            shared_m.nball++;
+            shared_m.nBR--;
+            shared_m.nR++;
             sem_post(&shared_m.s_Read);
         }
     }
@@ -101,11 +101,11 @@ void control_reader()
     if (shared_m.nW > 0|| shared_m.nBw > 0)
     {
         // If there is an Active writer or a Pending writer, i'll block
-        shared_m.nBball++;
+        shared_m.nBR++;
     }
     else
     {
-        shared_m.nball++;
+        shared_m.nR++;
         sem_post(&shared_m.s_Read);
     }
     sem_post(&shared_m.mutex);
@@ -116,8 +116,8 @@ void control_reader()
 void release_reader()
 {
     sem_wait(&shared_m.mutex);
-    shared_m.nball--;
-    if(shared_m.nBw > 0 && shared_m.nball == 0)
+    shared_m.nR--;
+    if(shared_m.nBw > 0 && shared_m.nR == 0)
     {
         // If there are some blocked Writers and no reader
         shared_m.nBw--;
@@ -143,14 +143,14 @@ tpars init_param(int prio, int period)
 /* Create a new Shot task*/
 int shot_create()
 {
-    int index_p;                // Index for Ball task
+    //int index_p;                // Index for Ball task
     static tpars shot_params;   // Params for Shot tasks
 
     /* Create Shots params*/
     shot_params = init_param(PRIO_B, PERIOD_B);
-    index_p = ptask_create_param(shot, &shot_params);
+    ptask_create_param(shot, &shot_params);
 
-    printf("Ho creato pallina con index: %d\n", index_p);
+    // printf("Ho creato pallina con index: %d\n", index_p);
 
     return 1;
 }
@@ -159,13 +159,9 @@ int shot_create()
 void reset_shared_traij()
 {
     int i = 0;
-    for(i = 0; i <= XWIN; i++)
+    for(i = 0; i <= SEMICFR; i++)
     {
         shared_m.trajectory.x[i] = NO_POS;
-    }
-    i = 0;
-    for(i = 0; i <= YWIN; i++)
-    {
         shared_m.trajectory.y[i] = NO_POS;
     }
 }
@@ -174,6 +170,7 @@ void reset_shared_traij()
 int manager_game()
 {  
     tpars params;       // Params for Graphic task
+
     /* Initialization of the game shared memory */
     mem_t_init(&shared_m);
     /* Create Graphic task */
@@ -188,12 +185,14 @@ int manager_game()
 /* Task trajectory calculation */
 void trajectory_cannon(float speedx, float speedy)
 {
+    int i = 0;
+
     float old_x, old_y;
     float x, y;
-    int i = 0;
+    float dt = PERIOD_G * 0.0049; // TScale based on graphic period
+    
     old_x = x =  PAD + 80 + 5*OFFSET;
     old_y = y = PAD + 5*OFFSET;
-    float dt = PERIOD_G * 0.0040; // TScale based on graphic period
     
     control_writer();
     reset_shared_traij();
@@ -204,18 +203,15 @@ void trajectory_cannon(float speedx, float speedy)
         old_x = x;
         old_y = y;
         x = old_x + (speedx * dt);
-        //x +=1;
         y = old_y + (speedy * dt) - (0.5 * G * dt * dt);
         speedy =  speedy - (G * dt);
-        //printf("I: %d\n", i);
-        //printf("X: %f\n Y: %f\n",x,YWIN - y);
+        
         control_writer();
         shared_m.trajectory.x[i] = (int) x;
         shared_m.trajectory.y[i] = (int) (YWIN - y);
         release_writer();
-        printf("X: %f   Y:%f\n",x,YWIN - y);
+        
         i += 1;
-        printf(" I value : %d\n",i);
     }
 }
 
@@ -231,37 +227,30 @@ ptask charge_cannon()
         if(up)
         {
             shot_pwr += 1;
-            
-            if (shot_pwr == MAX_PWR)
-            {
-                up = 0;
-            }
+            if (shot_pwr == MAX_PWR){ up = 0; }
         }
         else
         {
             shot_pwr -= 1;
-            
-            if (shot_pwr == 0)
-            {
-                up = 1;
-            }
-        }  
+            if (shot_pwr == 0){ up = 1; }
+        }
+
         control_writer();
         shared_m.shot_pwr = shot_pwr;
         release_writer();
-        /* Check Deadline miss */
+
+        /* Check Deadline miss -> lo lasciamo?*/
         if(ptask_deadline_miss())
         {
             control_writer();
             shared_m.power_d += 1;
             release_writer();
         }
-        ptask_wait_for_period();
 
+        ptask_wait_for_period();
         control_reader();
         end_charge = shared_m.end_charge;
         release_reader();
-
     }
     return;
 }

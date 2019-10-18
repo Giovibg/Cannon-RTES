@@ -82,7 +82,6 @@ int set_CannonDegree(int shot_pwr)
 int get_CannonPwr()
 {
     int shot_pwr;
-    int ret;
     int scaler[10] = {22, 22, 17, 17, 15,   // Scaler makes speed omogeneous
                         13, 13, 12, 11, 10};    
 
@@ -94,14 +93,12 @@ int get_CannonPwr()
     shot_pwr = shared_m.shot_pwr;
     release_reader();
 
-    ret = scaler[shot_pwr - 1] * shot_pwr;
+    return scaler[shot_pwr - 1] * shot_pwr;
 }
 
 /* Create the cannon task and set shared memory variable to correct value */
 int set_CannonPwr()
 {
-    printf("Ciao\n");
-
     tpars params;
 
     control_writer();
@@ -120,18 +117,18 @@ int main(void)
     int bool_manager = 0;               // Check manager task activated
     int n_shots = 0;                    // Number of total shot
     int shot_pwr = 0;                   // Power of the shot
-    int last_degree = 0;                // Degree of the previw  
 
     gui_init();
-    /* Ptask initialization */
     ptask_init(SCHED_FIFO, GLOBAL, NO_PROTOCOL);  
     do{
         if (keypressed())
         {   
             k = readkey() >> 8;
-            printf("Main k: %d\n", k);
             /* If press space, game start */
-            if (k == KEY_SPACE && bool_manager == 0){ bool_manager = manager_game(); }   
+            if (k == KEY_SPACE && bool_manager == 0)
+            { 
+                bool_manager = manager_game(); 
+            }   
             /* bool manager = 1 and enter in charge_cannon phase */
             if (k == KEY_ENTER && bool_manager == 1)
             {

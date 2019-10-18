@@ -14,7 +14,7 @@
 // window y resolution
 #define YWIN 680
 // Max number of position of the trajectory
-#define SEMICFR ((XWIN - 2 * PAD) * 4) / 2
+#define SEMICFR 1500
 // padding for game's statistics
 #define PAD 60
 // Shot ball radius
@@ -26,7 +26,7 @@
 // Period Graphic task, screen update rate
 #define PERIOD_G 25              
 // Priority Graphic task
-#define PRIO_G 8
+#define PRIO_G 9
 // Period Shot task
 #define PERIOD_B 20
 // Priority Graphic task
@@ -69,10 +69,11 @@
 //-------------------------------------------------------------
 // STRUCTURE DEFINITIONS
 //-------------------------------------------------------------
-// Structure to keep track of Shots's position
+
+// Structure that represent a 2D point in space
 struct pos_t{
-    int x;                          // X Shot's Position
-    int y;                          // Y Shot's Position
+    int x;                          // X Position
+    int y;                          // Y Position
 };
 
 struct postrail_t{
@@ -96,22 +97,21 @@ struct mem_t{
     int power_d;                    // PowerBar deadline miss
 
     struct pos_t pos[MAX_SHOTS];    // Positions of all the Shots
-    struct pos_t pos_target;        // Position of target
-    struct pos_t pos_wall;          // Wall position 
+    struct pos_t pos_target;        // Target's position
+    struct pos_t pos_wall;          // Wall's position 
     struct postrail_t trajectory;   // Trajectory points
     
     
-    int nball;                      // Number of Reader task
-    int nBball;                     // Number of Blocked ball task
-    int nW;                         // Number of writing process
-    int nBw;                        // Number of Blocked Writing process#define PERIOD_M 30
+    int nR;                         // Total number of Reader task
+    int nBR;                        // Total number of Blocked ball task
+    int nW;                         // Total number of writing process
+    int nBw;                        // Total number of Blocked Writing process
 
-    sem_t s_Read, s_Write;          // Semaphor for Reader task and Writers task
+    sem_t s_Read, s_Write;          // Semaphor for Reader and Writers tasks
     sem_t mutex;
-    
 };
 
-// Shared memory structure
+/* Shared memory structure */
 struct mem_t shared_m;
 
 //-------------------------------------------------------------
@@ -145,6 +145,8 @@ void release_reader();
 
 /* 
  * Initialize task params 
+ * int prio     -> priority of the task
+ * int period   -> period of the task
  */
 tpars init_param(int prio, int period);
 
@@ -164,7 +166,9 @@ void reset_shared_traij();
 int manager_game();
 
 /* 
- * Task trajectory calculation 
+ * Task trajectory calculation
+ * float speedx -> float that represent speed on x axis 
+ * float speedy -> float that represent speed on y axis
  */ 
 void trajectory_cannon(float speedx, float speedy);
 

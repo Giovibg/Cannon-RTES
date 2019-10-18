@@ -26,10 +26,19 @@ void change_rate_score(int new_shots, int new_score);
 /* Update deadline miss */
 void update_deadline();
 
-/* Retrieve necessary data for updating graphics 
- from Shared Memory. Protected!
+/* 
+ * Retrieve necessary data for updating graphics 
+ * from Shared Memory. Protected!
 */
-void retrieve_sharedm(int *shots, int*score, int *end_charge, int *shot_pwr, int *cannon_degree, int *target_x, int *update_traj);
+void retrieve_sharedm(int *shots, int*score, int *end_charge, int *shot_pwr, 
+                        int *cannon_degree, int *target_x, int *update_traj);
+
+/* 
+ * Draw the colored blocks that indicate the power of the shot 
+ * int shot_pwr -> Power of the shot
+ * int j_init   -> Indicate at which point start the cycle
+ */
+void charge_phase(int shot_pwr, int j_init);
 
 /* Task that update Game_Screen during play */
 ptask game_play();
