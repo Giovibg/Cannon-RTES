@@ -2,7 +2,6 @@
 #define MANAGER_H
 
 #include "ptask.h"
-#include "math.h"
 
 //-------------------------------------------------------------
 // GLOBAL CONSTANTS
@@ -14,7 +13,7 @@
 #define XWIN 1060
 // window y resolution
 #define YWIN 680
-// diag
+// Max number of position of the trajectory
 #define SEMICFR ((XWIN - 2 * PAD) * 4) / 2
 // padding for game's statistics
 #define PAD 60
@@ -63,7 +62,7 @@
 // Max left position of the target
 #define MAX_TARGET_L TARGET_X - 60
 // Wall width
-#define WALL_W 8
+#define WALL_W 15
 // Offset target respect wall
 #define OFFSET_WALL 40
 
@@ -85,13 +84,17 @@ struct postrail_t{
 // Shared memory structure definitios
 struct mem_t{
 
-    int score;                      // Score of the match; the number of time in which the target has been hit
+    int score;                      // Score of the match;
     int shots;                      // Number of bullets that has been fired
-
     int shot_pwr;                   // Power of the shot
-    int end_charge;                 // Var to segnalate the end of the cannon charge process
+    int end_charge;                 // Check if end cannon charge process
     int cannon_degree;              // Cannon rotation
-    int update_traj;
+    int update_traj;                // Check if trajectory has to be updated
+    int graphic_d;                  // Graphic deadline miss
+    int target_d;                   // Target deadline
+    int ball_d;                     // Ball deadline miss
+    int power_d;                    // PowerBar deadline miss
+
     struct pos_t pos[MAX_SHOTS];    // Positions of all the Shots
     struct pos_t pos_target;        // Position of target
     struct pos_t pos_wall;          // Wall position 
@@ -114,37 +117,60 @@ struct mem_t shared_m;
 //-------------------------------------------------------------
 // FUNCTIONS
 //-------------------------------------------------------------
-// Initialization for shared memory 
+
+/*
+ * Initialization for shared memory 
+ */
 void mem_t_init(struct mem_t *mem);
 
-// First phase of writers protection 
+/* 
+ * First phase of writers protection 
+ */
 void control_writer();
 
-// Release phase of writers protection 
+/* 
+ * Release phase of writers protection 
+ */ 
 void release_writer();
 
-// First phase of readers protection 
+/* 
+ * First phase of readers protection 
+ */
 void control_reader();
 
-// Release phase of readers protection 
+/* 
+ * Release phase of readers protection 
+ */
 void release_reader();
 
-// Initialize task params 
+/* 
+ * Initialize task params 
+ */
 tpars init_param(int prio, int period);
 
-// Create a new Shot task
+/* 
+ * Create a new Shot task 
+ */
 int shot_create();
 
-// Reset shared Trail
-void reset_shared_trail();
+/* 
+ * Reset shared Traij 
+ */
+void reset_shared_traij();
 
-// Task trajectory calculation 
-void trajectory_cannon(float speedx, float speedy);
-
-// Manager for the game
+/* 
+ * Manager for the game 
+ */
 int manager_game();
 
-// Charge cannon 
+/* 
+ * Task trajectory calculation 
+ */ 
+void trajectory_cannon(float speedx, float speedy);
+
+/* 
+ * Ptask for the charge cannon  
+ */
 ptask charge_cannon();
 
 #endif

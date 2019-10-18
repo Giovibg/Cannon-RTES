@@ -1,0 +1,8 @@
+# Object
+*.o
+
+#Visual studio code
+.vscode
+
+#Build Dir
+build/*

@@ -12,6 +12,7 @@
 #define BKG 0
 
 #define WHITE 15
+#define GREEN 10
 // string lenght
 #define MSG_L 50  
 
@@ -22,8 +23,12 @@
 /* Change rate and score value */
 void change_rate_score(int new_shots, int new_score);
 
-// Retrieve necessary data for updating graphics 
-// from Shared Memory. Protected!
+/* Update deadline miss */
+void update_deadline();
+
+/* Retrieve necessary data for updating graphics 
+ from Shared Memory. Protected!
+*/
 void retrieve_sharedm(int *shots, int*score, int *end_charge, int *shot_pwr, int *cannon_degree, int *target_x, int *update_traj);
 
 /* Task that update Game_Screen during play */

@@ -7,9 +7,6 @@
 #include "shot.h"
 #include "target.h"
 
-// Params for Shot tasks
-static tpars shot_params;
-
 /* Initialization for shared memory */
 void mem_t_init(struct mem_t *mem)
 {
@@ -31,6 +28,7 @@ void mem_t_init(struct mem_t *mem)
     mem->nBw = 0;
     mem->pos_wall.x = (XWIN / 2) - WALL_W/2;
     mem->pos_wall.y = (3*YWIN - 2 * PAD) / 4;
+    mem->graphic_d = mem->power_d = mem ->ball_d = mem-> target_d = 0;
     for(i = 0; i < MAX_SHOTS; i++)
     {
         mem->pos[i].x = NO_POS;
@@ -145,19 +143,20 @@ tpars init_param(int prio, int period)
 /* Create a new Shot task*/
 int shot_create()
 {
-    int ret;
+    int index_p;                // Index for Ball task
+    static tpars shot_params;   // Params for Shot tasks
 
     /* Create Shots params*/
     shot_params = init_param(PRIO_B, PERIOD_B);
-    ret = ptask_create_param(shot, &shot_params);
+    index_p = ptask_create_param(shot, &shot_params);
 
-    printf("Ho creato pallina con ret: %d\n", ret);
+    printf("Ho creato pallina con index: %d\n", index_p);
 
     return 1;
 }
 
-/* Reset shared Trail */
-void reset_shared_trail()
+/* Reset shared Traij */
+void reset_shared_traij()
 {
     int i = 0;
     for(i = 0; i <= XWIN; i++)
@@ -171,6 +170,21 @@ void reset_shared_trail()
     }
 }
 
+/* Manager for the game */
+int manager_game()
+{  
+    tpars params;       // Params for Graphic task
+    /* Initialization of the game shared memory */
+    mem_t_init(&shared_m);
+    /* Create Graphic task */
+    params = init_param(PRIO_G, PERIOD_G);
+    ptask_create_param(game_play, &params);
+    /* Create Target task */
+    params = init_param(PRIO_T, PERIOD_T);
+    ptask_create_param(target, &params);
+    return 1;
+}
+
 /* Task trajectory calculation */
 void trajectory_cannon(float speedx, float speedy)
 {
@@ -179,18 +193,18 @@ void trajectory_cannon(float speedx, float speedy)
     int i = 0;
     old_x = x =  PAD + 80 + 5*OFFSET;
     old_y = y = PAD + 5*OFFSET;
-    float dt = PERIOD_G * 0.0045; // TScale based on graphic period
+    float dt = PERIOD_G * 0.0040; // TScale based on graphic period
     
     control_writer();
-    reset_shared_trail();
+    reset_shared_traij();
     release_writer();
 
-    // while((x <= XWIN) && (YWIN - y < YWIN - PAD)) // numero di punti calcolato troppo grande
     while((x <= XWIN) && (YWIN - y < YWIN - PAD) && i <= SEMICFR)
     {
         old_x = x;
         old_y = y;
         x = old_x + (speedx * dt);
+        //x +=1;
         y = old_y + (speedy * dt) - (0.5 * G * dt * dt);
         speedy =  speedy - (G * dt);
         //printf("I: %d\n", i);
@@ -199,52 +213,25 @@ void trajectory_cannon(float speedx, float speedy)
         shared_m.trajectory.x[i] = (int) x;
         shared_m.trajectory.y[i] = (int) (YWIN - y);
         release_writer();
+        printf("X: %f   Y:%f\n",x,YWIN - y);
         i += 1;
+        printf(" I value : %d\n",i);
     }
 }
 
-/* Manager for the game */
-int manager_game()
-{  
-    int task_index;                 // var per debug
-    tpars params;                   // Params for Graphic task
-
-    // linee per debug
-    task_index = ptask_get_index(); 
-    printf("Task index manager: %d\n",task_index);
-
-    /* Initialization of the game shared memory */
-    mem_t_init(&shared_m);
-   
-    /* Draws game interface and screen */
-    //play_screen_init();
-
-    /* Create graphic task */
-    params = init_param(PRIO_G, PERIOD_G);
-    ptask_create_param(game_play, &params);
-
-    /* Create Target task */
-    params = init_param(PRIO_T, PERIOD_T);
-    ptask_create_param(target, &params);
-
-    return 1;
-}
-
-/* Charge cannon */
+/* Ptask for the charge cannon  */
 ptask charge_cannon()
 {
-    int up = 1;                 // Var that says if the pwr should grow or decrease
-    int shot_pwr = 0;
-    int end_charge = 0;
+    int up = 1;                 // Says if the pwr should grow or decrease
+    int shot_pwr = 0;           
+    int end_charge = 0;         // Check if Cannon-charge phase is over or not
 
     while(end_charge != -1)
     {
         if(up)
         {
             shot_pwr += 1;
-            control_writer();
-            shared_m.shot_pwr = shot_pwr;
-            release_writer();
+            
             if (shot_pwr == MAX_PWR)
             {
                 up = 0;
@@ -253,15 +240,22 @@ ptask charge_cannon()
         else
         {
             shot_pwr -= 1;
-            control_writer();
-            shared_m.shot_pwr = shot_pwr;
-            release_writer();
+            
             if (shot_pwr == 0)
             {
                 up = 1;
             }
         }  
-
+        control_writer();
+        shared_m.shot_pwr = shot_pwr;
+        release_writer();
+        /* Check Deadline miss */
+        if(ptask_deadline_miss())
+        {
+            control_writer();
+            shared_m.power_d += 1;
+            release_writer();
+        }
         ptask_wait_for_period();
 
         control_reader();
