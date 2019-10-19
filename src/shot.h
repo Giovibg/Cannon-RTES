@@ -14,3 +14,5 @@ int check_wall(int x, int y, int index);
 void update_wall();
 /* Retrieve trajectory */
 void get_trajectory(struct postrail_t *pos);
+/* Check Deadline miss */
+void check_deadline();

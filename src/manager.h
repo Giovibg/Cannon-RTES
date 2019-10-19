@@ -29,7 +29,7 @@
 #define PRIO_G 9
 // Period Shot task
 #define PERIOD_B 20
-// Priority Graphic task
+// Priority Shot task
 #define PRIO_B 9
 // Period Target task
 #define PERIOD_T 20
@@ -76,6 +76,7 @@ struct pos_t{
     int y;                          // Y Position
 };
 
+// Structure X, Y point trajectory
 struct postrail_t{
 
     int x[SEMICFR];
@@ -95,7 +96,7 @@ struct mem_t{
     int target_d;                   // Target deadline
     int ball_d;                     // Ball deadline miss
     int power_d;                    // PowerBar deadline miss
-
+    int end;                        // Exit. Stop tasks
     struct pos_t pos[MAX_SHOTS];    // Positions of all the Shots
     struct pos_t pos_target;        // Target's position
     struct pos_t pos_wall;          // Wall's position 
@@ -107,7 +108,7 @@ struct mem_t{
     int nW;                         // Total number of writing process
     int nBw;                        // Total number of Blocked Writing process
 
-    sem_t s_Read, s_Write;          // Semaphor for Reader and Writers tasks
+    sem_t s_Read, s_Write;          // Semaphore for Reader and Writers tasks
     sem_t mutex;
 };
 
@@ -173,7 +174,7 @@ int manager_game();
 void trajectory_cannon(float speedx, float speedy);
 
 /* 
- * Ptask for the charge cannon  
+ * Ptask for the charge cannon power bar
  */
 ptask charge_cannon();
 

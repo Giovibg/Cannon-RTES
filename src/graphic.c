@@ -9,7 +9,7 @@ static BITMAP *target;
 static BITMAP *cannon;  
 static struct postrail_t trail; 
 struct pos_t pos[MAX_SHOTS];
-//struct pos_t old[MAX_SHOTS];
+struct pos_t old[MAX_SHOTS];
 
 /* Import Bitmaps */
 void import_bitmap()
@@ -151,10 +151,10 @@ void draw_Shots(struct pos_t pos, int color)
 /* Draw playground borders */
 void draw_Borders()
 {  
-    line(screen, XWIN - PAD, PAD, PAD, PAD, 15);
-    line(screen, PAD, YWIN - PAD, PAD, PAD, 15);
-    line(screen, XWIN - PAD, YWIN - PAD, XWIN - PAD, PAD, 15);
-    line(screen, PAD, YWIN - PAD, XWIN - PAD, YWIN - PAD, 15);
+    line(screen, XWIN - PAD, PAD, PAD, PAD, WHITE);
+    line(screen, PAD, YWIN - PAD, PAD, PAD, WHITE);
+    line(screen, XWIN - PAD, YWIN - PAD, XWIN - PAD, PAD, WHITE);
+    line(screen, PAD, YWIN - PAD, XWIN - PAD, YWIN - PAD, WHITE);
 }
 
 /* Draw Wall */
@@ -162,11 +162,12 @@ void draw_wall(int target_x)
 {
     struct pos_t local_wall;
     
-    // Retrieve x, y position of wall and score
+    // Retrieve x, y position of wall
     control_reader();
     local_wall.x = shared_m.pos_wall.x;
     local_wall.y = shared_m.pos_wall.y;
     release_reader();
+    // Wall printed only if on left respect the target
     if(target_x - 30 > local_wall.x + WALL_W/2)
     {
         rectfill(screen,local_wall.x, YWIN - PAD,
@@ -193,7 +194,7 @@ void retrieve_trajectory()
         release_reader();
     }
 }
-
+/* Print trajectory preview */
 void update_trajectory(int color)
 {
     int j = 0;
@@ -213,7 +214,7 @@ void play_screen_init()
     draw_Borders();
     
     /* Game title */
-    textout_ex(screen, font, "CANNON BALL!", XWIN/2 - 45, PAD/2, 15, 0);
+    textout_ex(screen, font, "CANNON BALL!", XWIN/2 - 45, PAD/2, WHITE, 0);
 
     /* Drawing cannon power bar */
     draw_PwrBar();
@@ -224,7 +225,7 @@ void menu_screen_init()
 {
     clear_to_color(screen, BKG);
 
-     // Drawing playground borders
+    // Drawing playground borders
     draw_Borders();
 
     // tmp var to for writing message
@@ -233,10 +234,11 @@ void menu_screen_init()
     /* Title and Instructions */
     // Game title
     sprintf(s, "CANNON BALL!");
-    textout_ex(screen, font, s, XWIN/2 - 45, YWIN/2, 15, 0);
+    textout_ex(screen, font, s, XWIN/2 - 45, YWIN/2, WHITE, 0);
 
     sprintf(s, "press space");
-    textout_ex(screen, font, s, XWIN/2 - 45, YWIN/2 + 45, 15, 0);
+    textout_ex(screen, font, s, XWIN/2 - 45, YWIN/2 + 45, WHITE, 0);
+
 }
 
 /* Initialize display and keyboard interactions */
@@ -262,8 +264,9 @@ void gui_init()
     menu_screen_init();
 }
 
-// Retrieve necessary data for updating graphics 
-// from Shared Memory. Protected!
+/* Retrieve necessary data for updating graphics 
+ from Shared Memory. Protected! 
+ */
 void retrieve_sharedm(int *shots, int *score, int *end_charge, int *shot_pwr, 
                             int *cannon_degree, int *target_x, int *update_traj)
 {
@@ -278,17 +281,6 @@ void retrieve_sharedm(int *shots, int *score, int *end_charge, int *shot_pwr,
     release_reader();
 }
 
-void reset_ShotPos()
-{
-    int i;
-
-    for(i = 0; i < MAX_SHOTS; i++)
-    {
-        pos[i].x = NO_POS;
-        pos[i].y = NO_POS;
-    }
-}
-
 /* Draws all the Shots with the new positions*/
 void update_Shots()
 {
@@ -296,11 +288,14 @@ void update_Shots()
 
     for(i = 0; i < MAX_SHOTS; i++)
     {
+        old[i].x = pos[i].x;
+        old[i].y = pos[i].y;
+
         control_reader();
         pos[i].x = shared_m.pos[i].x;
         pos[i].y = shared_m.pos[i].y;
         release_reader();
-
+        draw_Shots(old[i], BKG);
         if(pos[i].x != NO_POS && pos[i].y != NO_POS)
         {
                 draw_Shots(pos[i], WHITE);
@@ -329,7 +324,7 @@ ptask game_play()
     int old_cannon_degree = -1;
     int target_x = TARGET_X;
     int update_traj = 0;
-
+    
     import_bitmap();
     while(1)
     {  
@@ -356,7 +351,6 @@ ptask game_play()
                 release_writer();
             }
         }
-
         if(update_traj)
         {
             update_trajectory(GREEN);

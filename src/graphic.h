@@ -26,6 +26,7 @@ void change_rate_score(int new_shots, int new_score);
 /* Update deadline miss */
 void update_deadline();
 
+
 /* 
  * Retrieve necessary data for updating graphics 
  * from Shared Memory. Protected!
@@ -81,5 +82,8 @@ void gui_init();
 
 /* Import Bitmaps */
 void import_bitmap();
+
+/* Check Deadline miss */
+void check_DeadlineMiss();
 
 #endif

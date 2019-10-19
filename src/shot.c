@@ -4,26 +4,26 @@
 #include <stdlib.h>
 
 /* Wall collision rebounce */
-void rebounce_wall(struct postrail_t *reb, int i)
+void rebounce_wall(struct postrail_t *reb, int j)
 {
-    int j;
     int wall_x;
     int dist_xwallx;
     int shift = 1;
     control_reader();
     wall_x = shared_m.pos_wall.x;
     release_reader();
-    j = i;
+    
     
     while(reb->x[j] != NO_POS)
     {
         dist_xwallx = reb->x[j] - wall_x;
         reb->x[j] = (wall_x - dist_xwallx);
-        reb->y[j] += (shift * 0.05); 
+        reb->y[j] += (shift * 0.005); 
         j += 1;
         shift += 1;
     }
 }
+
 /*Check shot out of borders */
 int check_border(int x, int y, int index) 
 {
@@ -138,27 +138,38 @@ void get_trajectory(struct postrail_t *pos)
     }  
 }
 
+/* Check Deadline miss */
+void check_deadline()
+{
+    if(ptask_deadline_miss())
+    {
+        control_writer();
+        shared_m.ball_d += 1;
+        release_writer();
+    }
+}
+
 /* Shot task */
 ptask shot()
 {
     struct postrail_t local_t;      // Trajectory local
     int index;                      // Index of the current Shot task
     int i = 0;                      // Counter printer trajectory
-    int end = 0;                    // If == -1, the shot task must end
+    int end = 0;                    // If != 1, the shot task must end
     int bord, targ, wall = 0;       // Check collisions return
     index = ptask_get_index();
-    printf("Sono la pallina %d!\n", index);
-
+    printf("Generated ball %d!\n", index);
+    
     get_trajectory(&local_t);       /* Retrieve trajectory */
-
     control_writer();
     shared_m.shots += 1;
     release_writer();
 
     // Draw ball position till Shot hit the target 
     // or goes outside game's border 
-    while(end != 1)         
-    {                   
+    while(end != 1)    
+    {                  
+        
         /* Write Shot positions */
         control_writer();
         shared_m.pos[index].x = local_t.x[i];     
@@ -185,13 +196,7 @@ ptask shot()
         }
         end = bord + targ;
 
-        /* Check Deadline miss */
-        if(ptask_deadline_miss())
-        {
-            control_writer();
-            shared_m.ball_d += 1;
-            release_writer();
-        }
+        check_deadline();
         ptask_wait_for_period();
     }
 }

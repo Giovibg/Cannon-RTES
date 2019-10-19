@@ -51,7 +51,7 @@ all: clean build
 # BUILD
 # -------------------------
 
-# Build.
+# Build call compile and link
 build: compile link 
 
 # Compile all specified source files.
@@ -67,22 +67,15 @@ link: $(OUT_FILES)
 # CLEAN
 # ----------------------------------
 
-# Command to clean: make clean
 clean:
 	rm -f $(OUT_BUILD)/*
 
-#	# ---------------------
-# SECTION: RUN
-#	# ---------------------
+# ---------------------
+# RUN
+# ---------------------
 
-check-env:
-ifeq ($(DISPLAY),)
-	$(error Display mode NOT supported.)
-else
-	$(info Display mode supported.)
-endif
 
-# Clean, build and run as superuser (in order to use ptask).
-run: check-env all
+# Call clean, build and run (as superuser).
+run: all
 	$(info Executing $(MAIN_NAME))
 	sudo $(OUT_BUILD)/$(MAIN)

@@ -9,6 +9,7 @@ ptask target()
     pos_target.x = TARGET_X;
     pos_target.y = TARGET_Y;
     int wall_x;                 //X position Wall
+    
     while(1)
     {
         control_reader();

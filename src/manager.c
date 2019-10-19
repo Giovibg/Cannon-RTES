@@ -18,7 +18,7 @@ void mem_t_init(struct mem_t *mem)
     mem->end_charge = -1;
     mem->cannon_degree = -1;
     mem->update_traj = 0;
-
+    mem->end = 0;
     mem->pos_target.x = TARGET_X;
     mem->pos_target.y = TARGET_Y;
     mem->pos_wall.x = (XWIN / 2) - WALL_W/2;
@@ -159,7 +159,7 @@ int shot_create()
 void reset_shared_traij()
 {
     int i = 0;
-    for(i = 0; i <= SEMICFR; i++)
+    for(i = 0; i < SEMICFR; i++)
     {
         shared_m.trajectory.x[i] = NO_POS;
         shared_m.trajectory.y[i] = NO_POS;

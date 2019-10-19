@@ -82,7 +82,7 @@ int set_CannonDegree(int shot_pwr)
 int get_CannonPwr()
 {
     int shot_pwr;
-    int scaler[10] = {22, 22, 17, 17, 15,   // Scaler makes speed omogeneous
+    int scaler[10] = {22, 22, 17, 17, 15,   // Scaler makes speed more uniform
                         13, 13, 12, 11, 10};    
 
     control_writer();
@@ -157,6 +157,7 @@ int main(void)
             }
         }
     } while(k != KEY_ESC);    
+    
     allegro_exit();
     return 0;
 }
