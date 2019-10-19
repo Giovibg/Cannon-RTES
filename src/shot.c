@@ -47,42 +47,42 @@ int check_target(int x, int y, int index)
 {
     int ret = 0;
     struct pos_t target_p;
+
+    //Get target position. Protected!
     control_reader();
-    target_p.x = shared_m.pos_target.x;     //Get target position. Protected!
+    target_p.x = shared_m.pos_target.x;     
     target_p.y = shared_m.pos_target.y;
     release_reader();
+
+    // Condition ball hit target
     if (x >= (target_p.x - RADIUS) && 
-        y >= (target_p.y - OFFSET) && (x <= target_p.x + 8*OFFSET))    //Condition ball hit target
+        y >= (target_p.y - OFFSET) && 
+        (x <= target_p.x + 8*OFFSET))    
     {
         control_writer();
-        shared_m.score += 1;                //Update score
-        shared_m.pos[index].x = NO_POS;     //Delete ball
+        shared_m.score += 1;                // Update score
+        shared_m.pos[index].x = NO_POS;     // Delete ball
         shared_m.pos[index].y = NO_POS;
         release_writer();
-        
 
         ret = 1;
     }
     return ret;
 }
+
 /* Check Wall collision */
 int check_wall(int x, int y, int index)
 {
     int ret = 0;
     struct pos_t wall_p;
+
+    // Get target position. Protected!
     control_reader();
-    wall_p.x = shared_m.pos_wall.x;     //Get target position. Protected!
+    wall_p.x = shared_m.pos_wall.x;     
     wall_p.y = shared_m.pos_wall.y;
     release_reader();
     if((x >= wall_p.x - RADIUS) && (x <= wall_p.x + WALL_W) && (y >= wall_p.y))
     {
-
-        /*control_writer();
-        shared_m.pos[index].x = NO_POS;     //Delete ball
-        shared_m.pos[index].y = NO_POS;
-        release_writer();
-        */
-
         ret = 1;
     }
     return ret;
@@ -92,14 +92,16 @@ void update_wall()
 {
     int score = 0;                      // Retrieve score
     int x_dir = 0;
-    struct pos_t wall_p;                //wall position to update
+    struct pos_t old_wall_p;            // Old wall position
+    struct pos_t new_wall_p;            // New wall position
+
     control_reader();
     score = shared_m.score;
-    wall_p.x = shared_m.pos_wall.x;
-    wall_p.y = shared_m.pos_wall.y;
+    old_wall_p.x = shared_m.pos_wall.x;
+    old_wall_p.y = shared_m.pos_wall.y;
     release_reader();
 
-    if (((wall_p.x % wall_p.y) % 2) == 0)
+    if (((old_wall_p.x % old_wall_p.y) % 2) == 0)
     {
         x_dir = 1;
     }
@@ -107,10 +109,14 @@ void update_wall()
     {
         x_dir = -1;
     }
+
+    new_wall_p.y = old_wall_p.y - score * OFFSET - (rand()%10);
+    new_wall_p.x = old_wall_p.x - x_dir * score * OFFSET - x_dir 
+                                                            * (rand()%60 + 1);
             
     control_writer();
-    shared_m.pos_wall.y = wall_p.y - score * OFFSET - (rand()%10);
-    shared_m.pos_wall.x = wall_p.x - x_dir * score * OFFSET - x_dir * (rand()%60 + 1);
+    shared_m.pos_wall.y = new_wall_p.y;
+    shared_m.pos_wall.x = new_wall_p.x;
     release_writer();
 }
 
@@ -147,22 +153,26 @@ ptask shot()
 
     control_writer();
     shared_m.shots += 1;
-    //shared_m.pos[index].x = local_t[0].x;
-    //shared_m.pos[index].y = local_t[0].y;
     release_writer();
 
-    i = 0;
-    while(end != 1)         //Draw ball position till in border
+    // Draw ball position till Shot hit the target 
+    // or goes outside game's border 
+    while(end != 1)         
     {                   
+        /* Write Shot positions */
         control_writer();
-        shared_m.pos[index].x = local_t.x[i];     //Write ball position
+        shared_m.pos[index].x = local_t.x[i];     
         shared_m.pos[index].y = local_t.y[i];
         release_writer();
-        // Collision Checking
+
+        /* Collision Checking */
         bord = check_border(local_t.x[i], local_t.y[i], index);
         targ = check_target(local_t.x[i], local_t.y[i], index);
-        wall = check_wall(local_t.x[i], local_t.y[i], index);
-        
+        if (i < SEMICFR)
+        {
+            wall = check_wall(local_t.x[i + 1], local_t.y[i + 1], index);
+        }
+
         i += 1;
         if(targ == 1)       // Target shoted, update wall position 
         {
