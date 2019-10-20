@@ -125,6 +125,11 @@ struct mem_t shared_m;
 void mem_t_init(struct mem_t *mem);
 
 /* 
+ * Check end to terminate graphic task 
+ */
+int check_end();
+
+/* 
  * First phase of writers protection 
  */
 void control_writer();

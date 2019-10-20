@@ -90,10 +90,10 @@ int check_wall(int x, int y, int index)
 
 void update_wall()
 {
-    int score = 0;                      // Retrieve score
-    int x_dir = 0;						// Random direction position wall
-    struct pos_t	old_wall_p;            // Old wall position
-    struct pos_t	new_wall_p;            // New wall position
+    int score = 0;			// Retrieve score
+    int x_dir = 0;			// Random direction position wall
+    struct pos_t	old_wall_p;	// Old wall position
+    struct pos_t	new_wall_p;	// New wall position
 
     control_reader();
     score = shared_m.score;
@@ -124,7 +124,7 @@ void get_trajectory(struct postrail_t *pos)
 {
     int j = 0;
     control_reader();
-    pos->x[0] = shared_m.trajectory.x[0]; //First trajectory point
+    pos->x[0] = shared_m.trajectory.x[0];	//First trajectory point
     pos->y[0] = shared_m.trajectory.y[0];
     release_reader();
     //Import trajectory to local
@@ -157,6 +157,7 @@ ptask shot()
     int i = 0;                      	// Counter printer trajectory
     int end = 0;                    	// If != 1, the shot task must end
     int	bord, targ, wall = 0;       	// Check collisions return
+	int end_main = 0;		// Check termination main
 
     index = ptask_get_index();
     printf("Generated ball %d!\n", index);
@@ -168,8 +169,9 @@ ptask shot()
 
     // Draw ball position till Shot hit the target 
     // or goes outside game's border 
-    while (end != 1)    
-    {                  
+    while (end < 1)    
+    {            
+        end_main = check_end();  // Check termination
         /* Write Shot positions */
         control_writer();
         shared_m.pos[index].x = local_t.x[i];     
@@ -185,16 +187,16 @@ ptask shot()
         }
 
         i += 1;
-        if (targ == 1)       // Target shoted, update wall position 
+        if (targ == 1)      // Target shoted, update wall position 
         {
             update_wall();
         }
-        if (wall == 1)       //Wall collision - Rebounce
+        if (wall == 1)      //Wall collision - Rebounce
         {
             rebounce_wall(&local_t,i);
             wall = 0;
         }
-        end = bord + targ;
+        end = bord + targ + end_main;
 
         check_deadline();
         ptask_wait_for_period();

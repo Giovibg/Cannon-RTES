@@ -49,6 +49,15 @@ void mem_t_init(struct mem_t *mem)
     sem_init(&mem->mutex, 0, 1);
 }
 
+int check_end()
+{
+	int	end;
+	control_reader();
+	end = shared_m.end;
+	release_reader();
+	return end;
+}
+
 /* First phase of writer manager protection */
 void control_writer()
 {
@@ -144,7 +153,7 @@ tpars init_param(int prio, int period)
 /* Create a new Shot task*/
 int shot_create()
 {
-    static tpars    shot_params;   // Params for Shot tasks
+    static tpars    shot_params;   	// Params for Shot tasks
 
     /* Create Shots params*/
     shot_params = init_param(PRIO_B, PERIOD_B);
@@ -167,7 +176,7 @@ void reset_shared_traij()
 /* Manager for the game */
 int manager_game()
 {  
-    tpars   params;       // Params for Graphic task
+    static tpars   params;		// Params for Graphic task
 
     /* Initialization of the game shared memory */
     mem_t_init(&shared_m);
@@ -218,8 +227,8 @@ ptask charge_cannon()
     int	up = 1;                 // Says if the pwr should grow or decrease
     int shot_pwr = 0;           
     int end_charge = 0;         // Check if Cannon-charge phase is over or not
-
-    while (end_charge != -1)
+    int end_main = 0;
+    while (end_charge != -1 && end_main != 1)
     {
         if (up)
         {
@@ -236,7 +245,6 @@ ptask charge_cannon()
         shared_m.shot_pwr = shot_pwr;
         release_writer();
 
-        /* Check Deadline miss -> lo lasciamo?*/
         if (ptask_deadline_miss())
         {
             control_writer();
@@ -248,6 +256,7 @@ ptask charge_cannon()
         control_reader();
         end_charge = shared_m.end_charge;
         release_reader();
+        end_main = check_end();
     }
     return;
 }

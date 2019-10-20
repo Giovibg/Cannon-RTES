@@ -9,8 +9,8 @@
 #include "manager.h"
 #include "graphic.h"
 
-static int	cannon_degree = 0;			// Degree of cannon     
-static int	k = 0;						// Character from keyboard
+static int	cannon_degree = 0;		// Degree of cannon     
+static int	k = 0;				// Character from keyboard
 
 /* Set Update trajectory. Protected! */
 void set_UpdateTrajectory(int bool)
@@ -24,15 +24,14 @@ void set_UpdateTrajectory(int bool)
 /* Calculate speed on axis X and Y and compute the trajectory */
 void speedxy(int shot_pwr)
 {
-    float	speed_x = 0;              // Horizontal speed
-    float	speed_y = 0;              // Vertical speed
-    float	cannon_rad;               // Degree of the cannon in radiant
+    float	speed_x = 0;			// Horizontal speed
+    float	speed_y = 0;			// Vertical speed
+    float	cannon_rad;            		// Degree of the cannon in radiant
 
     cannon_rad = (cannon_degree * 3 * PIGRECO) / 180;
     // printf("Radiant:%f\n",cannon_rad);
     speed_x = shot_pwr * cos(cannon_rad);
     // printf("Horizontal v: %f\n",speed_x);
-
     speed_y = shot_pwr * sin(cannon_rad);
     // printf("Vertical v: %f\n",speed_y);
     trajectory_cannon(speed_x,speed_y);
@@ -53,7 +52,7 @@ int set_CannonDegree(int shot_pwr)
     
     if(keypressed()) 
     {    
-		k = readkey() >> 8;                
+	k = readkey() >> 8;                
         if (k == KEY_UP && cannon_degree <= MAX_DEG)
         {
             cannon_degree += 1;
@@ -83,7 +82,7 @@ int get_CannonPwr()
 {
     int	shot_pwr;
     int scaler[10] = {22, 22, 17, 17, 15,   
-                        13, 13, 12, 11, 10};  // Scaler makes speed more uniform 
+                        13, 13, 12, 11, 10}; // Scaler makes speed more uniform 
 
     control_writer();
     shared_m.end_charge = -1;
@@ -114,9 +113,9 @@ int set_CannonPwr()
 
 int main(void)
 {  
-    int	bool_manager = 0;               // Check manager task activated
-    int n_shots = 0;                    // Number of total shot
-    int shot_pwr = 0;                   // Power of the shot
+    int	bool_manager = 0;               	// Check manager task activated
+    int n_shots = 0;                    	// Number of total shot
+    int shot_pwr = 0;                   	// Power of the shot
     gui_init();
     ptask_init(SCHED_FIFO, GLOBAL, NO_PROTOCOL);  
     do {
@@ -156,7 +155,10 @@ int main(void)
             }
         }
     } while (k != KEY_ESC);    
-    
+    control_writer();
+    shared_m.end = 1;
+    release_writer();
+    sleep(1);
     allegro_exit();
     return 0;
 }

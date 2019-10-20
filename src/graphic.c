@@ -30,19 +30,19 @@ void charge_phase(int shot_pwr, int j_init)
     {
         if (j % MAX_PWR < 3 && 1 <= j % MAX_PWR)
         {
-            color = 2;      //Dark Green
+            color = 2;      // Dark Green
         }
         if (3 <= j % MAX_PWR && j%MAX_PWR <= 6)
         {
-            color = 10;     //Light Green
+            color = 10;     // Light Green
         }
         if (j % MAX_PWR > 6 && j % MAX_PWR <= 8)
         {
-            color = 14;     //Yellow
+            color = 14;     // Yellow
         }
         if (j % MAX_PWR > 8 || j % MAX_PWR == 0)
         {
-            color = 12;     //Red
+            color = 12;     // Red
         }
         rectfill(screen,PAD + OFFSET + 1, (YWIN - PAD - (j - 1) * OFFSET) - 1,
                  PAD + 3 * OFFSET - 1, YWIN - PAD - j* OFFSET + 2, color); 
@@ -314,6 +314,7 @@ void check_DeadlineMiss()
     }
 }
 
+
 /* Task that update Game_Screen during play */
 ptask game_play()
 {
@@ -324,10 +325,12 @@ ptask game_play()
     int old_cannon_degree = -1;
     int target_x = TARGET_X;
     int update_traj = 0;
+	int end = 0;
     
     import_bitmap();
-    while (1)
+    while (!end)
     {  
+	end = check_end();
         /* Retrieve necessary data to update graphic */
         retrieve_sharedm(&shots, &score, &end_charge, &shot_pwr, 
                             &cannon_degree, &target_x, &update_traj);

@@ -9,10 +9,11 @@ ptask target()
     int wall_x;                     //X position Wall
     pos_target.x = TARGET_X;
     pos_target.y = TARGET_Y;
+    int end = 0;
     
-    
-    while (1)
+    while (!end)
     {
+        end = check_end();
         control_reader();
         wall_x = shared_m.pos_wall.x;
         release_reader();
