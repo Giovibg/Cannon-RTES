@@ -16,7 +16,7 @@ To install allegro under debian-distro: `sudo apt‐get install liballegro4.4 li
 Based on pthread lib
 
 ## Compile and Run
-
+- `mkdir build` to create build directory
 - `git clone` to clone project to local.
 - `make all` to remove all compiled files in `/build` directory, then build.
 - `make compile` to compile all C files and put compiled files in  `/build`.
@@ -43,7 +43,7 @@ Conditions are generally managed in a Reader / Writer approach:
 - **Writers**: when one writer is writing something, neither reader nor writer
 could access the shared mem. 
 
-Each time something should written to `shared_mem`, firstly we need to call  
+Each time something should be written to `shared_mem`, firstly we need to call  
 `control_writer()` function to initialize private semaphore, after we  
 could write to shared memory in a protected way, then a `release_writer()` function  
 will release private semaphore.
@@ -59,8 +59,8 @@ Game play is based on keyboard interactions. To play, in order you should:
 2. Press `ENTER` to choose power shot intensity - from 1 to 10.
 3. Press `ARROW KEY UP` or `ARROW KEY DOWN` to choose cannon degree rotation.
 4. Press `ENTER` to shot the ball following trajectory.
-5. If target will be catched by ball, wall position will be randomly changed, 
-   height incremented.
+5. If target will be catched by ball, wall position will be randomly changed 
+   and height incremented.
 6. Press `ESC` to exit the game.
 
 
@@ -76,7 +76,7 @@ intensity shot bar task(`ptask charge_cannon`), trajectory calculation(`trajecto
 - Graphic: All graphic functions. Each thing printed on screen is here.
 - Target: `ptask_target` function makes target move slowly.
 
-##Graphic Tasks Interaction
+## Graphic Tasks Interaction
 
 ![alt text](https://github.com/Giovibg/Cannon-RTES/blob/master/img/Task_Scheme.png)
 

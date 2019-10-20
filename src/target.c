@@ -4,18 +4,19 @@
 /* Target Task */
 ptask target()
 {
-    int right = 1;
-    struct pos_t pos_target;
+    int right = 1;                  // Target direction
+    struct pos_t    pos_target;     // Target X Y
+    int wall_x;                     //X position Wall
     pos_target.x = TARGET_X;
     pos_target.y = TARGET_Y;
-    int wall_x;                 //X position Wall
     
-    while(1)
+    
+    while (1)
     {
         control_reader();
         wall_x = shared_m.pos_wall.x;
         release_reader();
-        if(right) 
+        if (right) 
         {
             pos_target.x += 2;
         }
@@ -24,12 +25,12 @@ ptask target()
             pos_target.x -= 2;
         }
         
-        if(pos_target.x == MAX_TARGET_R)
+        if (pos_target.x == MAX_TARGET_R)
         {
             right = 0;
         }
         /* Target will move till wall position */
-        if(pos_target.x <= wall_x + OFFSET_WALL)
+        if (pos_target.x <= wall_x + OFFSET_WALL)
         {
             right = 1;
         }
@@ -38,7 +39,7 @@ ptask target()
         shared_m.pos_target.y = pos_target.y;
         release_writer();
         /* Check Deadline miss */
-        if(ptask_deadline_miss())
+        if (ptask_deadline_miss())
         {
             control_writer();
             shared_m.target_d += 1;

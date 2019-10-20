@@ -9,8 +9,8 @@
 #include "manager.h"
 #include "graphic.h"
 
-static int cannon_degree = 0;               // Degree of cannon     
-static int k = 0;                           // Character from keyboard
+static int	cannon_degree = 0;			// Degree of cannon     
+static int	k = 0;						// Character from keyboard
 
 /* Set Update trajectory. Protected! */
 void set_UpdateTrajectory(int bool)
@@ -24,9 +24,9 @@ void set_UpdateTrajectory(int bool)
 /* Calculate speed on axis X and Y and compute the trajectory */
 void speedxy(int shot_pwr)
 {
-    float speed_x = 0;              // Horizontal speed
-    float speed_y = 0;              // Vertical speed
-    float cannon_rad;               // Degree of the cannon in radiant
+    float	speed_x = 0;              // Horizontal speed
+    float	speed_y = 0;              // Vertical speed
+    float	cannon_rad;               // Degree of the cannon in radiant
 
     cannon_rad = (cannon_degree * 3 * PIGRECO) / 180;
     // printf("Radiant:%f\n",cannon_rad);
@@ -49,26 +49,26 @@ void update_CannonDegree(int cannon_degree)
 /* Phase where the user can set the Cannon Degree */
 int set_CannonDegree(int shot_pwr)
 {
-    int bool_manager = 3;   // Var to check if change to next phase
+    int	bool_manager = 3;   // Var to check if change to next phase
     
     if(keypressed()) 
     {    
-        k = readkey() >> 8;                
+		k = readkey() >> 8;                
         if (k == KEY_UP && cannon_degree <= MAX_DEG)
         {
             cannon_degree += 1;
             update_CannonDegree(cannon_degree);
         }
-        else if(k == KEY_DOWN && cannon_degree >= MIN_DEG)
+        else if (k == KEY_DOWN && cannon_degree >= MIN_DEG)
         {
             cannon_degree -= 1;
             update_CannonDegree(cannon_degree);
         }
-        else if(k == KEY_ENTER)
+        else if (k == KEY_ENTER)
         {
             bool_manager = 4;
         }
-        else if(k == KEY_ESC)
+        else if (k == KEY_ESC)
         {
             bool_manager = 5;
         }
@@ -81,9 +81,9 @@ int set_CannonDegree(int shot_pwr)
 /* End the Charge cannon phase and return the power of the shot */
 int get_CannonPwr()
 {
-    int shot_pwr;
-    int scaler[10] = {22, 22, 17, 17, 15,   // Scaler makes speed more uniform
-                        13, 13, 12, 11, 10};    
+    int	shot_pwr;
+    int scaler[10] = {22, 22, 17, 17, 15,   
+                        13, 13, 12, 11, 10};  // Scaler makes speed more uniform 
 
     control_writer();
     shared_m.end_charge = -1;
@@ -99,7 +99,7 @@ int get_CannonPwr()
 /* Create the cannon task and set shared memory variable to correct value */
 int set_CannonPwr()
 {
-    tpars params;
+    tpars	params;
 
     control_writer();
     shared_m.end_charge = 0;
@@ -114,13 +114,12 @@ int set_CannonPwr()
 
 int main(void)
 {  
-    int bool_manager = 0;               // Check manager task activated
+    int	bool_manager = 0;               // Check manager task activated
     int n_shots = 0;                    // Number of total shot
     int shot_pwr = 0;                   // Power of the shot
-
     gui_init();
     ptask_init(SCHED_FIFO, GLOBAL, NO_PROTOCOL);  
-    do{
+    do {
         if (keypressed())
         {   
             k = readkey() >> 8;
@@ -144,19 +143,19 @@ int main(void)
                 speedxy(shot_pwr);
             }
             /* Set the cannon Degree */
-            while(bool_manager == 3)
+            while (bool_manager == 3)
             { 
                 bool_manager = set_CannonDegree(shot_pwr);
             }
             /* Create a new Shot  */
-            if(n_shots < MAX_SHOTS && bool_manager == 4)
+            if (n_shots < MAX_SHOTS && bool_manager == 4)
             {   
                 set_UpdateTrajectory(0);
                 n_shots += 1;
                 bool_manager = shot_create();   
             }
         }
-    } while(k != KEY_ESC);    
+    } while (k != KEY_ESC);    
     
     allegro_exit();
     return 0;

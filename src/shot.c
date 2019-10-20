@@ -14,7 +14,7 @@ void rebounce_wall(struct postrail_t *reb, int j)
     release_reader();
     
     
-    while(reb->x[j] != NO_POS)
+    while (reb->x[j] != NO_POS)
     {
         dist_xwallx = reb->x[j] - wall_x;
         reb->x[j] = (wall_x - dist_xwallx);
@@ -29,7 +29,7 @@ int check_border(int x, int y, int index)
 {
     int ret = 0;
 
-    if(x >= XWIN - PAD - RADIUS  ||
+    if (x >= XWIN - PAD - RADIUS  ||
         y <= PAD + RADIUS || 
         y >= YWIN - PAD - RADIUS)
     {
@@ -45,8 +45,8 @@ int check_border(int x, int y, int index)
 /* Check ball hit target */
 int check_target(int x, int y, int index)
 {
-    int ret = 0;
-    struct pos_t target_p;
+    int	ret = 0;
+    struct pos_t	target_p;
 
     //Get target position. Protected!
     control_reader();
@@ -73,15 +73,15 @@ int check_target(int x, int y, int index)
 /* Check Wall collision */
 int check_wall(int x, int y, int index)
 {
-    int ret = 0;
-    struct pos_t wall_p;
+    int	ret = 0;
+    struct pos_t 	wall_p;
 
     // Get target position. Protected!
     control_reader();
     wall_p.x = shared_m.pos_wall.x;     
     wall_p.y = shared_m.pos_wall.y;
     release_reader();
-    if((x >= wall_p.x - RADIUS) && (x <= wall_p.x + WALL_W) && (y >= wall_p.y))
+    if ((x >= wall_p.x - RADIUS) && (x <= wall_p.x + WALL_W) && (y >= wall_p.y))
     {
         ret = 1;
     }
@@ -91,16 +91,16 @@ int check_wall(int x, int y, int index)
 void update_wall()
 {
     int score = 0;                      // Retrieve score
-    int x_dir = 0;
-    struct pos_t old_wall_p;            // Old wall position
-    struct pos_t new_wall_p;            // New wall position
+    int x_dir = 0;						// Random direction position wall
+    struct pos_t	old_wall_p;            // Old wall position
+    struct pos_t	new_wall_p;            // New wall position
 
     control_reader();
     score = shared_m.score;
     old_wall_p.x = shared_m.pos_wall.x;
     old_wall_p.y = shared_m.pos_wall.y;
     release_reader();
-
+    // Random generation wall position
     if (((old_wall_p.x % old_wall_p.y) % 2) == 0)
     {
         x_dir = 1;
@@ -110,8 +110,8 @@ void update_wall()
         x_dir = -1;
     }
 
-    new_wall_p.y = old_wall_p.y - score * OFFSET - (rand()%10);
-    new_wall_p.x = old_wall_p.x - x_dir * score * OFFSET - x_dir 
+    new_wall_p.y = old_wall_p.y - (score * OFFSET) - (rand()%10);
+    new_wall_p.x = old_wall_p.x - (x_dir * score * OFFSET) - x_dir 
                                                             * (rand()%60 + 1);
             
     control_writer();
@@ -128,7 +128,7 @@ void get_trajectory(struct postrail_t *pos)
     pos->y[0] = shared_m.trajectory.y[0];
     release_reader();
     //Import trajectory to local
-    while(pos->y[j] != NO_POS && pos->x[j] != NO_POS && j < SEMICFR)      
+    while (pos->y[j] != NO_POS && pos->x[j] != NO_POS && j < SEMICFR)      
     {                                               
         j += 1;
         control_reader();
@@ -141,7 +141,7 @@ void get_trajectory(struct postrail_t *pos)
 /* Check Deadline miss */
 void check_deadline()
 {
-    if(ptask_deadline_miss())
+    if (ptask_deadline_miss())
     {
         control_writer();
         shared_m.ball_d += 1;
@@ -152,24 +152,24 @@ void check_deadline()
 /* Shot task */
 ptask shot()
 {
-    struct postrail_t local_t;      // Trajectory local
-    int index;                      // Index of the current Shot task
-    int i = 0;                      // Counter printer trajectory
-    int end = 0;                    // If != 1, the shot task must end
-    int bord, targ, wall = 0;       // Check collisions return
+    struct postrail_t	local_t;      	// Trajectory local
+    int index;                      	// Index of the current Shot task
+    int i = 0;                      	// Counter printer trajectory
+    int end = 0;                    	// If != 1, the shot task must end
+    int	bord, targ, wall = 0;       	// Check collisions return
+
     index = ptask_get_index();
     printf("Generated ball %d!\n", index);
     
-    get_trajectory(&local_t);       /* Retrieve trajectory */
+    get_trajectory(&local_t);       	/* Retrieve trajectory */
     control_writer();
     shared_m.shots += 1;
     release_writer();
 
     // Draw ball position till Shot hit the target 
     // or goes outside game's border 
-    while(end != 1)    
+    while (end != 1)    
     {                  
-        
         /* Write Shot positions */
         control_writer();
         shared_m.pos[index].x = local_t.x[i];     
@@ -185,11 +185,11 @@ ptask shot()
         }
 
         i += 1;
-        if(targ == 1)       // Target shoted, update wall position 
+        if (targ == 1)       // Target shoted, update wall position 
         {
             update_wall();
         }
-        if(wall == 1)       //Wall collision - Rebounce
+        if (wall == 1)       //Wall collision - Rebounce
         {
             rebounce_wall(&local_t,i);
             wall = 0;

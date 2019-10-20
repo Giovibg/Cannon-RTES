@@ -5,11 +5,11 @@
 #include "graphic.h"
 #include "manager.h"
 
-static BITMAP *target;         
-static BITMAP *cannon;  
-static struct postrail_t trail; 
-struct pos_t pos[MAX_SHOTS];
-struct pos_t old[MAX_SHOTS];
+static BITMAP	*target;                    // Ship target bitmap   
+static BITMAP   *cannon;                    // Cannon bitmap
+struct pos_t    pos[MAX_SHOTS];             // Actual ball positions
+struct pos_t    old[MAX_SHOTS];             // Old ball positions
+static struct postrail_t    trail;          // Trajectory points preview
 
 /* Import Bitmaps */
 void import_bitmap()
@@ -23,24 +23,24 @@ void import_bitmap()
 /* Draw the colored blocks that indicate the power of the shot */
 void charge_phase(int shot_pwr, int j_init)
 {
-    int j;
+    int	j;
     int color;
 
-    for(j = j_init; j <= shot_pwr; j++)
+    for (j = j_init; j <= shot_pwr; j++)
     {
-        if(j % MAX_PWR < 3 && 1 <= j % MAX_PWR)
+        if (j % MAX_PWR < 3 && 1 <= j % MAX_PWR)
         {
             color = 2;      //Dark Green
         }
-        if(3 <= j % MAX_PWR && j%MAX_PWR <= 6)
+        if (3 <= j % MAX_PWR && j%MAX_PWR <= 6)
         {
             color = 10;     //Light Green
         }
-        if(j % MAX_PWR > 6 && j % MAX_PWR <= 8)
+        if (j % MAX_PWR > 6 && j % MAX_PWR <= 8)
         {
             color = 14;     //Yellow
         }
-        if(j % MAX_PWR > 8 || j % MAX_PWR == 0)
+        if (j % MAX_PWR > 8 || j % MAX_PWR == 0)
         {
             color = 12;     //Red
         }
@@ -95,8 +95,8 @@ void change_cannon(int cannon_degree)
 void change_rate_score(int new_shots, int new_score)
 {
     // tmp var for strings
-    char s[MSG_L];
-    char r[MSG_L];
+    char    s[MSG_L];
+    char    r[MSG_L];
     
     // Update rate graphic
     sprintf(r, "Rate: %d/%d", new_score, new_shots);
@@ -110,16 +110,16 @@ void change_rate_score(int new_shots, int new_score)
 /* Update deadline miss */
 void update_deadline()
 {
-    int graphic;
+    int	graphic;
     int ball;
     int power;
     int target;
 
     /* strings to print */
-    char g[MSG_L];
-    char b[MSG_L];
-    char p[MSG_L];
-    char t[MSG_L];
+    char    g[MSG_L];
+    char    b[MSG_L];
+    char    p[MSG_L];
+    char    t[MSG_L];
 
     //Retrieve deadline counter. Protected!
     control_reader();           
@@ -160,7 +160,7 @@ void draw_Borders()
 /* Draw Wall */
 void draw_wall(int target_x)
 {
-    struct pos_t local_wall;
+    struct pos_t    local_wall;
     
     // Retrieve x, y position of wall
     control_reader();
@@ -168,7 +168,7 @@ void draw_wall(int target_x)
     local_wall.y = shared_m.pos_wall.y;
     release_reader();
     // Wall printed only if on left respect the target
-    if(target_x - 30 > local_wall.x + WALL_W/2)
+    if (target_x - 30 > local_wall.x + WALL_W/2)
     {
         rectfill(screen,local_wall.x, YWIN - PAD,
                  local_wall.x + (WALL_W),local_wall.y,WHITE);
@@ -185,7 +185,7 @@ void retrieve_trajectory()
     trail.y[0] = shared_m.trajectory.y[0];
     release_reader();
 
-    while(trail.y[j] != NO_POS && trail.x[j] != NO_POS && j < SEMICFR) 
+    while (trail.y[j] != NO_POS && trail.x[j] != NO_POS && j < SEMICFR) 
     {          
         j += 1;
         control_reader();
@@ -197,8 +197,8 @@ void retrieve_trajectory()
 /* Print trajectory preview */
 void update_trajectory(int color)
 {
-    int j = 0;
-    while(trail.y[j] != NO_POS && trail.x[j] != NO_POS && j < SEMICFR)
+    int	j = 0;
+    while (trail.y[j] != NO_POS && trail.x[j] != NO_POS && j < SEMICFR)
     {          
         putpixel(screen, trail.x[j], trail.y[j], color);
         j += 1;   
@@ -286,7 +286,7 @@ void update_Shots()
 {
     int i;
 
-    for(i = 0; i < MAX_SHOTS; i++)
+    for (i = 0; i < MAX_SHOTS; i++)
     {
         old[i].x = pos[i].x;
         old[i].y = pos[i].y;
@@ -306,7 +306,7 @@ void update_Shots()
 /* Check Deadline miss */
 void check_DeadlineMiss()
 {
-    if(ptask_deadline_miss())
+    if (ptask_deadline_miss())
     {
         control_writer();
         shared_m.graphic_d += 1;
@@ -317,7 +317,7 @@ void check_DeadlineMiss()
 /* Task that update Game_Screen during play */
 ptask game_play()
 {
-    int shots, score = 0;
+    int	shots, score = 0;
     int end_charge = -1;
     int shot_pwr = 1;
     int cannon_degree = -1;
@@ -326,7 +326,7 @@ ptask game_play()
     int update_traj = 0;
     
     import_bitmap();
-    while(1)
+    while (1)
     {  
         /* Retrieve necessary data to update graphic */
         retrieve_sharedm(&shots, &score, &end_charge, &shot_pwr, 
@@ -335,8 +335,9 @@ ptask game_play()
         play_screen_init();
         update_deadline();
         draw_wall(target_x);
+
         /* Retrive new trajectory when cannon angle changed */
-        if(old_cannon_degree != cannon_degree)
+        if (old_cannon_degree != cannon_degree)
         {   
             retrieve_trajectory();
             if (cannon_degree != -180) // Fake position to update trajectory
@@ -351,7 +352,7 @@ ptask game_play()
                 release_writer();
             }
         }
-        if(update_traj)
+        if (update_traj)
         {
             update_trajectory(GREEN);
         }
