@@ -8,7 +8,7 @@
 #include "target.h"
 
 /* Initialization for shared memory */
-void mem_t_init(struct mem_t *mem)
+void init_mem_t(struct mem_t *mem)
 {
     int i;
     mem->score = 0;
@@ -35,31 +35,31 @@ void mem_t_init(struct mem_t *mem)
         mem->pos[i].x = NO_POS;
         mem->pos[i].y = NO_POS;
     }
-    
     for (int i = 0; i < SEMICFR; i++)
     {
         mem->trajectory.x[i] = NO_POS; 
+        mem->trajectory.y[i] = NO_POS;
     }
-    for (int j=0; j < SEMICFR; j++)
+    for(i = 0; i < MAX_SHOTS + 3; i++)
     {
-        mem->trajectory.y[j] = NO_POS;
+        mem->pid[i] = -1;
     }
     sem_init(&mem->s_Read, 0, 0);
     sem_init(&mem->s_Write, 0, 0);
     sem_init(&mem->mutex, 0, 1);
 }
 
-int check_end()
+int check_End()
 {
 	int	end;
-	control_reader();
+	control_Reader();
 	end = shared_m.end;
-	release_reader();
+	release_Reader();
 	return end;
 }
 
 /* First phase of writer manager protection */
-void control_writer()
+void control_Writer()
 {
     sem_wait(&shared_m.mutex);
     if (shared_m.nR > 0 || shared_m.nW > 0)
@@ -79,7 +79,7 @@ void control_writer()
 }
 
 /* Release phase of writer manager protection */
-void release_writer()
+void release_Writer()
 {
     sem_wait(&shared_m.mutex);
     shared_m.nW--;
@@ -104,7 +104,7 @@ void release_writer()
 }
 
 /* First phase of readers protection */
-void control_reader()
+void control_Reader()
 {
     sem_wait(&shared_m.mutex);
     if (shared_m.nW > 0|| shared_m.nBw > 0)
@@ -122,7 +122,7 @@ void control_reader()
 }
 
 /* Release phase of readers protection */
-void release_reader()
+void release_Reader()
 {
     sem_wait(&shared_m.mutex);
     shared_m.nR--;
@@ -137,7 +137,7 @@ void release_reader()
 }
 
 /* Initialize task params */
-tpars init_param(int prio, int period)
+tpars init_Param(int prio, int period)
 {
     tpars   params = TASK_SPEC_DFL;
 
@@ -151,19 +151,24 @@ tpars init_param(int prio, int period)
 }
 
 /* Create a new Shot task*/
-int shot_create()
+int create_Shot(int n_shots)
 {
+    int pid_s;
     static tpars    shot_params;   	// Params for Shot tasks
 
     /* Create Shots params*/
-    shot_params = init_param(PRIO_B, PERIOD_B);
-    ptask_create_param(shot, &shot_params);
+    shot_params = init_Param(PRIO_B, PERIOD_B);
+    pid_s = ptask_create_param(shot, &shot_params);
+
+    control_Writer();
+    shared_m.pid[n_shots + 2] = pid_s;
+    release_Writer();
 
     return 1;
 }
 
 /* Reset shared Traij */
-void reset_shared_traij()
+void reset_SharedTraij()
 {
     int i = 0;
     for (i = 0; i < SEMICFR; i++)
@@ -176,16 +181,23 @@ void reset_shared_traij()
 /* Manager for the game */
 int manager_game()
 {  
+    int pid_g, pid_t;
     static tpars   params;		// Params for Graphic task
 
     /* Initialization of the game shared memory */
-    mem_t_init(&shared_m);
+    init_mem_t(&shared_m);
     /* Create Graphic task */
-    params = init_param(PRIO_G, PERIOD_G);
-    ptask_create_param(game_play, &params);
+    params = init_Param(PRIO_G, PERIOD_G);
+    pid_g = ptask_create_param(game_play, &params);
     /* Create Target task */
-    params = init_param(PRIO_T, PERIOD_T);
-    ptask_create_param(target, &params);
+    params = init_Param(PRIO_T, PERIOD_T);
+    pid_t = ptask_create_param(target, &params);
+
+    control_Writer();
+    shared_m.pid[0] = pid_g;
+    shared_m.pid[1] = pid_t;
+    release_Writer();
+
     return 1;
 }
 
@@ -200,9 +212,9 @@ void trajectory_cannon(float speedx, float speedy)
     old_x = x =  PAD + 80 + 5*OFFSET;
     old_y = y = PAD + 5*OFFSET;
     
-    control_writer();
-    reset_shared_traij();
-    release_writer();
+    control_Writer();
+    reset_SharedTraij();
+    release_Writer();
 
     while ((x <= XWIN) && (YWIN - y < YWIN - PAD) && i <= SEMICFR)
     {
@@ -212,10 +224,10 @@ void trajectory_cannon(float speedx, float speedy)
         y = old_y + (speedy * dt) - (0.5 * G * dt * dt);
         speedy =  speedy - (G * dt);
         
-        control_writer();
+        control_Writer();
         shared_m.trajectory.x[i] = (int) x;
         shared_m.trajectory.y[i] = (int) (YWIN - y);
-        release_writer();
+        release_Writer();
         
         i += 1;
     }
@@ -241,22 +253,22 @@ ptask charge_cannon()
             if (shot_pwr == 0){ up = 1; }
         }
 
-        control_writer();
+        control_Writer();
         shared_m.shot_pwr = shot_pwr;
-        release_writer();
+        release_Writer();
 
         if (ptask_deadline_miss())
         {
-            control_writer();
+            control_Writer();
             shared_m.power_d += 1;
-            release_writer();
+            release_Writer();
         }
 
         ptask_wait_for_period();
-        control_reader();
+        control_Reader();
         end_charge = shared_m.end_charge;
-        release_reader();
-        end_main = check_end();
+        release_Reader();
+        end_main = check_End();
     }
     return;
 }

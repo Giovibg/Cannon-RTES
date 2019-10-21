@@ -8,15 +8,12 @@
 // GLOBAL CONSTANTS
 //-------------------------------------------------------------
 
-// background color
-#define BKG 0
-
+#define BKG 0       // background color
+#define RED 12
 #define WHITE 15
 #define GREEN 10
-// string lenght
-#define MSG_L 50  
+#define MSG_L 50    // string lenght  
 
-#define RED 12
 
 //-------------------------------------------------------------
 
@@ -24,15 +21,10 @@
 void change_rate_score(int new_shots, int new_score);
 
 /* Update deadline miss */
-void update_deadline();
+void update_Deadline();
 
-
-/* 
- * Retrieve necessary data for updating graphics 
- * from Shared Memory. Protected!
-*/
-void retrieve_sharedm(int *shots, int*score, int *end_charge, int *shot_pwr, 
-                        int *cannon_degree, int *target_x, int *update_traj);
+/* Import Bitmaps */
+void import_Bitmap();
 
 /* 
  * Draw the colored blocks that indicate the power of the shot 
@@ -41,50 +33,66 @@ void retrieve_sharedm(int *shots, int*score, int *end_charge, int *shot_pwr,
  */
 void charge_phase(int shot_pwr, int j_init);
 
-/* Task that update Game_Screen during play */
-ptask game_play();
-
-/* Draws game interface and screen */
-void play_screen_init();
-
-/* Reset postrail_t trail */
-void reset_trail();
-
-/* Print trajectory preview */
-void update_trajectory(int color);
-
-/* Retrieve new trajectory */
-void retrieve_trajectory();
-
-/* Draws menu interface */
-void menu_screen_init();
-
 /* Draws cannon power bar's line */
 void draw_Pwrline();
+
+/* Draw playground borders */
+void draw_PwrBar();
+
+/* Change Target bitmap */
+void change_Target(int x, int y);
+
+/* Rotate cannon bitmap */
+void change_Cannon(int cannon_degree);
+
+/* Change rate and score value */
+void change_RateScore(int new_shots, int new_score);
+
+/* Draw a new circlefill rapresenting a shot */
+void draw_Shots(struct pos_t posi, int color);
 
 /* Draw playground borders */
 void draw_Borders();
 
 /* Draw Wall */
-void draw_wall(int tagret_x);
+void draw_Wall(int tagret_x);
 
-/* Draw playground borders */
-void draw_PwrBar();
+/* Retrieve new trajectory */
+void retrieve_Trajectory();
 
-/* Draw a new circlefill rapresenting a shot */
-void draw_Shots(struct pos_t posi, int color);
+/* Print trajectory preview */
+void update_Trajectory(int color);
+
+/* Draws game interface and screen */
+void init_PlayScreen();
+
+/* Draws menu interface */
+void init_MenuScreen();
 
 /* Initialize display and keyboard interactions */
-void display_init();
+void init_Display();
 
 /* Initialize graphic environment */
-void gui_init();
+void init_Gui();
 
-/* Import Bitmaps */
-void import_bitmap();
+/* 
+ * Retrieve necessary data for updating graphics 
+ * from Shared Memory. Protected!
+ */
+void retrieve_Sharedm(int *shots, int*score, int *end_charge, int *shot_pwr, 
+                        int *cannon_degree, int *target_x, int *update_traj);
+
+/* Draws all the Shots with the new positions*/
+void update_Shots();
 
 /* Check Deadline miss */
 void check_DeadlineMiss();
 
+/* All Dynamic update in graphic task */
+void change_Dynamic(int shots, int score, int cannon_degree, int target_x, 
+                        int shot_pwr, int end_charge);
+
+/* Task that update Game_Screen during play */
+ptask game_play();
 
 #endif

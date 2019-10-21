@@ -11,8 +11,43 @@ struct pos_t    pos[MAX_SHOTS];             // Actual ball positions
 struct pos_t    old[MAX_SHOTS];             // Old ball positions
 static struct postrail_t    trail;          // Trajectory points preview
 
+/* Update deadline miss */
+void update_Deadline()
+{
+    int	graphic;
+    int ball;
+    int power;
+    int target;
+
+    /* strings to print */
+    char    g[MSG_L];
+    char    b[MSG_L];
+    char    p[MSG_L];
+    char    t[MSG_L];
+
+    //Retrieve deadline counter. Protected!
+    control_Reader();           
+    graphic = shared_m.graphic_d;
+    ball = shared_m.ball_d;
+    power = shared_m.power_d;
+    target = shared_m.target_d;
+    release_Reader();
+
+    //Update deadlines
+    sprintf(g, "Graphic deadline miss: %d",graphic);
+    textout_ex(screen, font, g, PAD, YWIN - PAD/2, WHITE, BKG);
+    sprintf(b, "Ball deadline miss: %d",ball);
+    textout_ex(screen, font, b, PAD + 250 + OFFSET, YWIN - PAD/2, WHITE, BKG);
+    sprintf(p, "Power bar deadline miss: %d",power);
+    textout_ex(screen, font, p, PAD + (2 * 250) + OFFSET, YWIN - PAD/2, 
+                                                                WHITE, BKG);
+    sprintf(t, "Target deadline miss: %d",target);
+    textout_ex(screen, font, t, PAD + (3 * 250) + OFFSET, YWIN - PAD/2, 
+                                                                WHITE, BKG);
+}
+
 /* Import Bitmaps */
-void import_bitmap()
+void import_Bitmap()
 {
     target = load_bitmap("img/ship_r.bmp", NULL);
     draw_sprite(screen, target,TARGET_X,TARGET_Y);
@@ -74,13 +109,13 @@ void draw_PwrBar()
 }
 
 /* Change Target bitmap */
-void change_target(int x, int y)
+void change_Target(int x, int y)
 {
     draw_sprite(screen, target,x,y);
 }
 
 /* Rotate cannon bitmap */
-void change_cannon(int cannon_degree)
+void change_Cannon(int cannon_degree)
 {
     fixed f_cannon_degree;
 
@@ -92,7 +127,7 @@ void change_cannon(int cannon_degree)
 }
 
 /* Change rate and score value */
-void change_rate_score(int new_shots, int new_score)
+void change_RateScore(int new_shots, int new_score)
 {
     // tmp var for strings
     char    s[MSG_L];
@@ -105,41 +140,6 @@ void change_rate_score(int new_shots, int new_score)
     // Update score graphic
     sprintf(s, "Score: %d", new_score);
     textout_ex(screen, font, s, PAD, PAD/2, WHITE, BKG);
-}
-
-/* Update deadline miss */
-void update_deadline()
-{
-    int	graphic;
-    int ball;
-    int power;
-    int target;
-
-    /* strings to print */
-    char    g[MSG_L];
-    char    b[MSG_L];
-    char    p[MSG_L];
-    char    t[MSG_L];
-
-    //Retrieve deadline counter. Protected!
-    control_reader();           
-    graphic = shared_m.graphic_d;
-    ball = shared_m.ball_d;
-    power = shared_m.power_d;
-    target = shared_m.target_d;
-    release_reader();
-
-    //Update deadlines
-    sprintf(g, "Graphic deadline miss: %d",graphic);
-    textout_ex(screen, font, g, PAD, YWIN - PAD/2, WHITE, BKG);
-    sprintf(b, "Ball deadline miss: %d",ball);
-    textout_ex(screen, font, b, PAD + 250 + OFFSET, YWIN - PAD/2, WHITE, BKG);
-    sprintf(p, "Power bar deadline miss: %d",power);
-    textout_ex(screen, font, p, PAD + (2 * 250) + OFFSET, YWIN - PAD/2, 
-                                                                WHITE, BKG);
-    sprintf(t, "Target deadline miss: %d",target);
-    textout_ex(screen, font, t, PAD + (3 * 250) + OFFSET, YWIN - PAD/2, 
-                                                                WHITE, BKG);
 }
 
 /* Draw a new Shot ball */
@@ -158,15 +158,15 @@ void draw_Borders()
 }
 
 /* Draw Wall */
-void draw_wall(int target_x)
+void draw_Wall(int target_x)
 {
     struct pos_t    local_wall;
     
     // Retrieve x, y position of wall
-    control_reader();
+    control_Reader();
     local_wall.x = shared_m.pos_wall.x;
     local_wall.y = shared_m.pos_wall.y;
-    release_reader();
+    release_Reader();
     // Wall printed only if on left respect the target
     if (target_x - 30 > local_wall.x + WALL_W/2)
     {
@@ -175,27 +175,27 @@ void draw_wall(int target_x)
     }
 }
 
-void retrieve_trajectory()
+void retrieve_Trajectory()
 {
     int j = 0;
 
     // Import trajectory to local
-    control_reader();           
+    control_Reader();           
     trail.x[0] = shared_m.trajectory.x[0];
     trail.y[0] = shared_m.trajectory.y[0];
-    release_reader();
+    release_Reader();
 
     while (trail.y[j] != NO_POS && trail.x[j] != NO_POS && j < SEMICFR) 
     {          
         j += 1;
-        control_reader();
+        control_Reader();
         trail.x[j] = shared_m.trajectory.x[j];
         trail.y[j] = shared_m.trajectory.y[j];
-        release_reader();
+        release_Reader();
     }
 }
 /* Print trajectory preview */
-void update_trajectory(int color)
+void update_Trajectory(int color)
 {
     int	j = 0;
     while (trail.y[j] != NO_POS && trail.x[j] != NO_POS && j < SEMICFR)
@@ -206,7 +206,7 @@ void update_trajectory(int color)
 }
 
 /* Draws game interface and screen */
-void play_screen_init()
+void init_PlayScreen()
 {
     clear_to_color(screen, BKG);
 
@@ -221,7 +221,7 @@ void play_screen_init()
 }
 
 /* Draws menu interface */
-void menu_screen_init()
+void init_MenuScreen()
 {
     clear_to_color(screen, BKG);
 
@@ -242,7 +242,7 @@ void menu_screen_init()
 }
 
 /* Initialize display and keyboard interactions */
-void display_init()
+void init_Display()
 {
     allegro_init();
 
@@ -255,22 +255,22 @@ void display_init()
 }
 
 // Initialize graphic environment
-void gui_init()
+void init_Gui()
 {
     // Initialize display and keyboard interactions
-    display_init();
+    init_Display();
 
     // Draws game interface and screen
-    menu_screen_init();
+    init_MenuScreen();
 }
 
 /* Retrieve necessary data for updating graphics 
  from Shared Memory. Protected! 
  */
-void retrieve_sharedm(int *shots, int *score, int *end_charge, int *shot_pwr, 
+void retrieve_Sharedm(int *shots, int *score, int *end_charge, int *shot_pwr, 
                             int *cannon_degree, int *target_x, int *update_traj)
 {
-    control_reader();
+    control_Reader();
     *shots = shared_m.shots; 
     *score = shared_m.score;
     *end_charge = shared_m.end_charge;
@@ -278,7 +278,7 @@ void retrieve_sharedm(int *shots, int *score, int *end_charge, int *shot_pwr,
     *cannon_degree = shared_m.cannon_degree;
     *target_x = shared_m.pos_target.x;
     *update_traj = shared_m.update_traj;
-    release_reader();
+    release_Reader();
 }
 
 /* Draws all the Shots with the new positions*/
@@ -291,14 +291,15 @@ void update_Shots()
         old[i].x = pos[i].x;
         old[i].y = pos[i].y;
 
-        control_reader();
+        control_Reader();
         pos[i].x = shared_m.pos[i].x;
         pos[i].y = shared_m.pos[i].y;
-        release_reader();
+        release_Reader();
+
         draw_Shots(old[i], BKG);
         if(pos[i].x != NO_POS && pos[i].y != NO_POS)
         {
-                draw_Shots(pos[i], WHITE);
+            draw_Shots(pos[i], WHITE);
         }
     }
 }
@@ -308,12 +309,22 @@ void check_DeadlineMiss()
 {
     if (ptask_deadline_miss())
     {
-        control_writer();
+        control_Writer();
         shared_m.graphic_d += 1;
-        release_writer();
+        release_Writer();
     }
 }
 
+/* All Dynamic update in graphic task */
+void change_Dynamic(int shots, int score, int cannon_degree, int target_x, 
+                        int shot_pwr, int end_charge)
+{
+    change_RateScore(shots, score);
+    change_Cannon(cannon_degree);
+    change_Target(target_x, TARGET_Y);
+    draw_Pwrline(shot_pwr, end_charge);
+    update_Shots();
+}
 
 /* Task that update Game_Screen during play */
 ptask game_play()
@@ -327,22 +338,21 @@ ptask game_play()
     int update_traj = 0;
 	int end = 0;
     
-    import_bitmap();
+    import_Bitmap();
     while (!end)
     {  
-	end = check_end();
+	end = check_End();
         /* Retrieve necessary data to update graphic */
-        retrieve_sharedm(&shots, &score, &end_charge, &shot_pwr, 
+        retrieve_Sharedm(&shots, &score, &end_charge, &shot_pwr, 
                             &cannon_degree, &target_x, &update_traj);
 
-        play_screen_init();
-        update_deadline();
-        draw_wall(target_x);
+        init_PlayScreen();
+        update_Deadline();
+        draw_Wall(target_x);
 
         /* Retrive new trajectory when cannon angle changed */
-        if (old_cannon_degree != cannon_degree)
-        {   
-            retrieve_trajectory();
+        if (old_cannon_degree != cannon_degree){   
+            retrieve_Trajectory();
             if (cannon_degree != -180) // Fake position to update trajectory
             {
                 old_cannon_degree = cannon_degree;
@@ -350,21 +360,16 @@ ptask game_play()
             else
             {
                 cannon_degree = old_cannon_degree;
-                control_writer();
+                control_Writer();
                 shared_m.cannon_degree = old_cannon_degree;
-                release_writer();
+                release_Writer();
             }
         }
-        if (update_traj)
-        {
-            update_trajectory(GREEN);
+        if (update_traj){
+            update_Trajectory(GREEN);
         }
-
-        change_rate_score(shots, score);
-        change_cannon(cannon_degree);
-        change_target(target_x, TARGET_Y);
-        draw_Pwrline(shot_pwr, end_charge);
-        update_Shots();
+        change_Dynamic(shots, score, cannon_degree, target_x,shot_pwr, 
+                                                                end_charge);
         check_DeadlineMiss();
         
         ptask_wait_for_period();

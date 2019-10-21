@@ -97,6 +97,8 @@ struct mem_t{
     int ball_d;                     // Ball deadline miss
     int power_d;                    // PowerBar deadline miss
     int end;                        // Exit. Stop tasks
+    int pid[MAX_SHOTS + 3];         // Vector with tasks's PID
+
     struct pos_t pos[MAX_SHOTS];    // Positions of all the Shots
     struct pos_t pos_target;        // Target's position
     struct pos_t pos_wall;          // Wall's position 
@@ -122,49 +124,49 @@ struct mem_t shared_m;
 /*
  * Initialization for shared memory 
  */
-void mem_t_init(struct mem_t *mem);
+void init_mem_t(struct mem_t *mem);
 
 /* 
- * Check end to terminate graphic task 
+ * Check end to terminate task 
  */
-int check_end();
+int check_End();
 
 /* 
  * First phase of writers protection 
  */
-void control_writer();
+void control_Writer();
 
 /* 
  * Release phase of writers protection 
  */ 
-void release_writer();
+void release_Writer();
 
 /* 
  * First phase of readers protection 
  */
-void control_reader();
+void control_Reader();
 
 /* 
  * Release phase of readers protection 
  */
-void release_reader();
+void release_Reader();
 
 /* 
  * Initialize task params 
  * int prio     -> priority of the task
  * int period   -> period of the task
  */
-tpars init_param(int prio, int period);
+tpars init_Param(int prio, int period);
 
 /* 
  * Create a new Shot task 
  */
-int shot_create();
+int create_Shot(int n_shot);
 
 /* 
  * Reset shared Traij 
  */
-void reset_shared_traij();
+void reset_SharedTraij();
 
 /* 
  * Manager for the game 

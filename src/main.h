@@ -48,4 +48,9 @@ int get_CannonPwr();
  */
 int set_CannonPwr();
 
+/* 
+ * Set end var to 1 and waits for join 
+ */
+void check_Join(int n_shots);
+
 #endif
