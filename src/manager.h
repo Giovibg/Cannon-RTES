@@ -9,13 +9,13 @@
 
 // PIGRECO
 #define PIGRECO 3.1415926535
-// window x resolution
+// Window x resolution
 #define XWIN 1060
-// window y resolution
+// Window y resolution
 #define YWIN 680
 // Max number of position of the trajectory
 #define SEMICFR 1500
-// padding for game's statistics
+// Padding for game's statistics
 #define PAD 60
 // Shot ball radius
 #define RADIUS 5
@@ -79,11 +79,11 @@ struct pos_t{
 // Structure X, Y point trajectory
 struct postrail_t{
 
-    int x[SEMICFR];
-    int y[SEMICFR];
+    int x[SEMICFR];                 // All X trajectory points   
+    int y[SEMICFR];                 // All Y trajectory points
 };
 
-// Shared memory structure definitios
+// Shared memory structure definitions
 struct mem_t{
 
     int score;                      // Score of the match;

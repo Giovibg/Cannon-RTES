@@ -16,7 +16,6 @@ To install allegro under debian-distro: `sudo apt‐get install liballegro4.4 li
 Based on pthread lib
 
 ## Compile and Run
-- `mkdir build` to create build directory
 - `git clone` to clone project to local.
 - `make all` to remove all compiled files in `/build` directory, then build.
 - `make compile` to compile all C files and put compiled files in  `/build`.

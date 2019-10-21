@@ -99,7 +99,7 @@ int set_CannonPwr()
 
     control_Writer();
     shared_m.end_charge = 0;
-    shared_m.pid[0] = pid;
+    shared_m.pid[2] = pid;
     release_Writer();
 
     return 2;

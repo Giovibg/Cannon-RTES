@@ -14,12 +14,12 @@ static struct postrail_t    trail;          // Trajectory points preview
 /* Update deadline miss */
 void update_Deadline()
 {
-    int	graphic;
-    int ball;
-    int power;
-    int target;
+    int	graphic_deadline;
+    int ball_deadline;
+    int power_deadline;
+    int target_deadline;
 
-    /* strings to print */
+    /* Strings to print */
     char    g[MSG_L];
     char    b[MSG_L];
     char    p[MSG_L];
@@ -27,21 +27,21 @@ void update_Deadline()
 
     //Retrieve deadline counter. Protected!
     control_Reader();           
-    graphic = shared_m.graphic_d;
-    ball = shared_m.ball_d;
-    power = shared_m.power_d;
-    target = shared_m.target_d;
+    graphic_deadline = shared_m.graphic_d;
+    ball_deadline = shared_m.ball_d;
+    power_deadline = shared_m.power_d;
+    target_deadline = shared_m.target_d;
     release_Reader();
 
     //Update deadlines
-    sprintf(g, "Graphic deadline miss: %d",graphic);
+    sprintf(g, "Graphic deadline miss: %d",graphic_deadline);
     textout_ex(screen, font, g, PAD, YWIN - PAD/2, WHITE, BKG);
-    sprintf(b, "Ball deadline miss: %d",ball);
+    sprintf(b, "Ball deadline miss: %d",ball_deadline);
     textout_ex(screen, font, b, PAD + 250 + OFFSET, YWIN - PAD/2, WHITE, BKG);
-    sprintf(p, "Power bar deadline miss: %d",power);
+    sprintf(p, "Power bar deadline miss: %d",power_deadline);
     textout_ex(screen, font, p, PAD + (2 * 250) + OFFSET, YWIN - PAD/2, 
                                                                 WHITE, BKG);
-    sprintf(t, "Target deadline miss: %d",target);
+    sprintf(t, "Target deadline miss: %d",target_deadline);
     textout_ex(screen, font, t, PAD + (3 * 250) + OFFSET, YWIN - PAD/2, 
                                                                 WHITE, BKG);
 }
@@ -50,9 +50,9 @@ void update_Deadline()
 void import_Bitmap()
 {
     target = load_bitmap("img/ship_r.bmp", NULL);
-    draw_sprite(screen, target,TARGET_X,TARGET_Y);
+    draw_sprite(screen, target, TARGET_X, TARGET_Y);
     cannon = load_bitmap("img/can_r.bmp", NULL);
-    draw_sprite(screen, cannon,PAD + 4*OFFSET,YWIN - PAD - 5*OFFSET);
+    draw_sprite(screen, cannon, PAD + 4*OFFSET, YWIN - PAD - 5*OFFSET);
 }
 
 /* Draw the colored blocks that indicate the power of the shot */
@@ -101,11 +101,11 @@ void draw_Pwrline(int shot_pwr, int end_charge)
 void draw_PwrBar()
 {
     line(screen,  PAD + 3*OFFSET, YWIN - PAD, 
-        PAD + 3*OFFSET, YWIN - PAD - MAX_PWR * OFFSET, 15);
+        PAD + 3 * OFFSET, YWIN - PAD - MAX_PWR * OFFSET, 15);
     line(screen,  PAD + OFFSET, YWIN - PAD,
-         PAD + 1*OFFSET, YWIN - PAD - MAX_PWR * OFFSET, 15);
-    line(screen,  PAD + OFFSET, YWIN - PAD - MAX_PWR*OFFSET - 1,
-         PAD + 3*OFFSET, YWIN - PAD - MAX_PWR * OFFSET - 1, 15);
+         PAD + 1 * OFFSET, YWIN - PAD - MAX_PWR * OFFSET, 15);
+    line(screen,  PAD + OFFSET, YWIN - PAD - MAX_PWR * OFFSET - 1,
+         PAD + 3 * OFFSET, YWIN - PAD - MAX_PWR * OFFSET - 1, 15);
 }
 
 /* Change Target bitmap */
@@ -121,7 +121,7 @@ void change_Cannon(int cannon_degree)
 
     f_cannon_degree = -itofix(cannon_degree);
    
-    rotate_sprite(screen,cannon,PAD + 4*OFFSET,YWIN - PAD - 5*OFFSET, 
+    rotate_sprite(screen,cannon,PAD + 4 * OFFSET,YWIN - PAD - 5 * OFFSET, 
                                                             f_cannon_degree);
     line(screen, PAD, YWIN - PAD, XWIN - PAD, YWIN - PAD, 15);
 }
@@ -167,6 +167,7 @@ void draw_Wall(int target_x)
     local_wall.x = shared_m.pos_wall.x;
     local_wall.y = shared_m.pos_wall.y;
     release_Reader();
+
     // Wall printed only if on left respect the target
     if (target_x - 30 > local_wall.x + WALL_W/2)
     {
@@ -179,7 +180,7 @@ void retrieve_Trajectory()
 {
     int j = 0;
 
-    // Import trajectory to local
+    /* Import trajectory to local */
     control_Reader();           
     trail.x[0] = shared_m.trajectory.x[0];
     trail.y[0] = shared_m.trajectory.y[0];
@@ -194,10 +195,12 @@ void retrieve_Trajectory()
         release_Reader();
     }
 }
+
 /* Print trajectory preview */
 void update_Trajectory(int color)
 {
     int	j = 0;
+
     while (trail.y[j] != NO_POS && trail.x[j] != NO_POS && j < SEMICFR)
     {          
         putpixel(screen, trail.x[j], trail.y[j], color);
@@ -212,9 +215,6 @@ void init_PlayScreen()
 
     /* Drawing playground borders */
     draw_Borders();
-    
-    /* Game title */
-    textout_ex(screen, font, "CANNON BALL!", XWIN/2 - 45, PAD/2, WHITE, 0);
 
     /* Drawing cannon power bar */
     draw_PwrBar();
@@ -223,22 +223,44 @@ void init_PlayScreen()
 /* Draws menu interface */
 void init_MenuScreen()
 {
+    char s[MSG_L];          // Tmp var for writing message
+
     clear_to_color(screen, BKG);
 
-    // Drawing playground borders
     draw_Borders();
 
-    // tmp var to for writing message
-    char s[MSG_L];
+    line(screen, XWIN/2 - 205, YWIN/2 - 5*35, XWIN/2 + 215, YWIN/2 - 5*35, WHITE);
+    line(screen, XWIN/2 - 205, YWIN/2 - 5*35, XWIN/2 - 205, YWIN/2 + 5*35, WHITE);
+    line(screen, XWIN/2 + 215, YWIN/2 - 5*35, XWIN/2 + 215, YWIN/2 + 5*35, WHITE);
+    line(screen, XWIN/2 - 205, YWIN/2 + 5*35, XWIN/2 + 215, YWIN/2 + 5*35, WHITE);
 
     /* Title and Instructions */
-    // Game title
     sprintf(s, "CANNON BALL!");
-    textout_ex(screen, font, s, XWIN/2 - 45, YWIN/2, WHITE, 0);
+    textout_ex(screen, font, s, XWIN/2 - 55, YWIN/2 - 7*35, WHITE, 0);
 
-    sprintf(s, "press space");
-    textout_ex(screen, font, s, XWIN/2 - 45, YWIN/2 + 45, WHITE, 0);
+    sprintf(s, "press SPACE to start game");
+    textout_ex(screen, font, s, XWIN/2 - 155, YWIN/2 - 4*35, WHITE, 0);
 
+    sprintf(s, "do {");
+    textout_ex(screen, font, s, XWIN/2 - 155, YWIN/2 - 3*35, WHITE, 0);
+
+    sprintf(s, "    press ENTER to charge Cannon");
+    textout_ex(screen, font, s, XWIN/2 - 155, YWIN/2 - 1*35, WHITE, 0);
+
+    sprintf(s, "    press ENTER again to choose Power");
+    textout_ex(screen, font, s, XWIN/2 - 155, YWIN/2, WHITE, 0);
+
+    sprintf(s, "    use UP and DOWN to choose Cannon Angle");
+    textout_ex(screen, font, s, XWIN/2 - 155, YWIN/2 + 35, WHITE, 0);
+
+    sprintf(s, "    press ENTER to SHOOT!");
+    textout_ex(screen, font, s, XWIN/2 - 155, YWIN/2 + 2*35, WHITE, 0);
+
+    sprintf(s, "} while(!tired)");
+    textout_ex(screen, font, s, XWIN/2 - 155, YWIN/2 + 4*35, WHITE, 0);
+
+    sprintf(s, "-- developed by GIOVANNI BAGNOLI && ALESSIO RUGGI --");
+    textout_ex(screen, font, s, XWIN/2 - 205, YWIN/2 + 7*35, WHITE, 0);
 }
 
 /* Initialize display and keyboard interactions */
@@ -257,15 +279,16 @@ void init_Display()
 // Initialize graphic environment
 void init_Gui()
 {
-    // Initialize display and keyboard interactions
+    /* Initialize display and keyboard interactions */
     init_Display();
 
-    // Draws game interface and screen
+    /* Draws game interface and screen */
     init_MenuScreen();
 }
 
-/* Retrieve necessary data for updating graphics 
- from Shared Memory. Protected! 
+/* 
+ * Retrieve necessary data for updating graphics 
+ * from Shared Memory. Protected! 
  */
 void retrieve_Sharedm(int *shots, int *score, int *end_charge, int *shot_pwr, 
                             int *cannon_degree, int *target_x, int *update_traj)
@@ -341,7 +364,7 @@ ptask game_play()
     import_Bitmap();
     while (!end)
     {  
-	end = check_End();
+	    end = check_End();
         /* Retrieve necessary data to update graphic */
         retrieve_Sharedm(&shots, &score, &end_charge, &shot_pwr, 
                             &cannon_degree, &target_x, &update_traj);

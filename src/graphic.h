@@ -12,9 +12,10 @@
 #define RED 12
 #define WHITE 15
 #define GREEN 10
-#define MSG_L 50    // string lenght  
+#define MSG_L 70    // string lenght  
 
-
+//-------------------------------------------------------------
+// FUNCTIONS
 //-------------------------------------------------------------
 
 /* Change rate and score value */
@@ -33,10 +34,16 @@ void import_Bitmap();
  */
 void charge_phase(int shot_pwr, int j_init);
 
-/* Draws cannon power bar's line */
-void draw_Pwrline();
+/* 
+ * Draws cannon power bar's line 
+ * int shot_pwr     -> Power of the shot
+ * int end_charge   -> Bool to check if charge phase should end
+ */
+void draw_Pwrline(int shot_pwr, int end_charge);
 
-/* Draw playground borders */
+/* 
+ * Draw playground borders 
+ */
 void draw_PwrBar();
 
 /* Change Target bitmap */
@@ -48,8 +55,12 @@ void change_Cannon(int cannon_degree);
 /* Change rate and score value */
 void change_RateScore(int new_shots, int new_score);
 
-/* Draw a new circlefill rapresenting a shot */
-void draw_Shots(struct pos_t posi, int color);
+/* 
+ * Draw a new circlefill representing a shot 
+ * struct pos_t pos    -> struct that represent X and Y Shot coordinates
+ * int color           -> color of the Shot
+ */
+void draw_Shots(struct pos_t pos, int color);
 
 /* Draw playground borders */
 void draw_Borders();

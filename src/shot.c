@@ -160,6 +160,10 @@ ptask shot()
 	int end_main = 0;		            // Check termination main
     int n_shots;
 
+    control_Writer();
+    shared_m.shots += 1;
+    release_Writer();
+
     /* Retrieve the number of the shots */
     control_Reader();
     n_shots = shared_m.shots;
@@ -168,10 +172,8 @@ ptask shot()
     index = ptask_get_index();
     printf("Generated ball %d!\n", index);
     
-    get_trajectory(&local_t);       	/* Retrieve trajectory */
-    control_Writer();
-    shared_m.shots += 1;
-    release_Writer();
+    /* Retrieve trajectory */
+    get_trajectory(&local_t);       	
 
     // Draw ball position till Shot hit the target 
     // or goes outside game's border 

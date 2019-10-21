@@ -49,12 +49,15 @@ void init_mem_t(struct mem_t *mem)
     sem_init(&mem->mutex, 0, 1);
 }
 
+/* Check end to terminate task */
 int check_End()
 {
 	int	end;
+
 	control_Reader();
 	end = shared_m.end;
 	release_Reader();
+
 	return end;
 }
 
@@ -239,7 +242,8 @@ ptask charge_cannon()
     int	up = 1;                 // Says if the pwr should grow or decrease
     int shot_pwr = 0;           
     int end_charge = 0;         // Check if Cannon-charge phase is over or not
-    int end_main = 0;
+    int end_main = 0;           // Check if task should terminate
+
     while (end_charge != -1 && end_main != 1)
     {
         if (up)
@@ -270,6 +274,11 @@ ptask charge_cannon()
         release_Reader();
         end_main = check_End();
     }
+
+    control_Writer();
+    shared_m.pid[2] = -1;
+    release_Writer();
+    
     return;
 }
 

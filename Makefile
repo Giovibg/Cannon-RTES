@@ -45,7 +45,7 @@ OUT_FILES = $(addsuffix .o, $(addprefix $(OUT_BUILD)/, $(BASE_FILES)))
 # ----------------------------------------------------------------------
 
 # all call clean and build
-all: clean build
+all: c_dir clean build
 
 # -------------------------
 # BUILD
@@ -63,17 +63,23 @@ compile: $(SOURCE_FILES)
 link: $(OUT_FILES)
 	$(CC) -o $(OUT_BUILD)/$(MAIN) $(OUT_FILES) $(LIBS) $(ALL_FLAGS)
 
-# ----------------------------------
+# -------------------------
 # CLEAN
-# ----------------------------------
+# -------------------------
 
 clean:
 	rm -f $(OUT_BUILD)/*
 
-# ---------------------
-# RUN
-# ---------------------
+# -------------------------
+# BUILD DIR CREATION
+# -------------------------
+c_dir:
+	$(shell mkdir -p $(OUT_BUILD))
 
+
+# -------------------------
+# RUN
+# -------------------------
 
 # Call clean, build and run (as superuser).
 run: all
